@@ -1,0 +1,33 @@
+package src.functions;
+
+class Update
+{
+    public function new()
+    {
+        //
+    }
+
+    public function updatePackages() : Void
+    {
+        var fh    = new FileHandler();
+        var webDl = new WebDownloader();
+        var xmlR  = new GmxReader();
+
+        // Get a list all repos
+        var repoList = fh.getReposList();
+        var pkgNumb  = 0;
+        for (repo in repoList)
+        {
+            // Download each repos xml
+            var xml  = webDl.getRepository(repo);
+            if (xml != "")
+            {
+                Sys.println(repo + " reached");
+                var list = xmlR.readRepoPackages(xml);
+                pkgNumb += fh.addPackagesToList(list, pkgNumb);
+            }
+        }
+
+        Sys.println(Std.string(pkgNumb) + " packages found");
+    }
+}

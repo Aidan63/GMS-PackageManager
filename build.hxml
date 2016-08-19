@@ -1,0 +1,12 @@
+-cp src
+-lib hxssl
+-lib xmlTools
+-main Main
+
+#--each
+
+-neko bin/gmr.n
+
+#--next
+
+#-cpp out
