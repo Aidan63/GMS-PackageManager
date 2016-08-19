@@ -1,7 +1,7 @@
 package src.functions;
 
 import src.FileHandler;
-import src.GmxReader;
+import src.XmlReader;
 
 using StringTools;
 
@@ -15,7 +15,7 @@ class Remove
     public function removePackages(_packages:Array<String>) : Void
     {
         var fh   :FileHandler = new FileHandler();
-        var gmxR :GmxReader   = new GmxReader();
+        var gmxR :XmlReader   = new XmlReader();
 
         // If a package is not installed stop the program
         for (_pkg in _packages)

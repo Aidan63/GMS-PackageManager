@@ -2,7 +2,7 @@ package;
 
 import Sys.args;
 import src.FileHandler;
-import src.GmxReader;
+import src.XmlReader;
 import src.functions.*;
 
 class Main

@@ -2,7 +2,7 @@ package src.functions;
 
 import src.WebDownloader;
 import src.FileHandler;
-import src.GmxReader;
+import src.XmlReader;
 
 class AddRepo
 {
@@ -15,7 +15,7 @@ class AddRepo
     {
         var fh    = new FileHandler();
         var webDl = new WebDownloader();
-        var xmlR  = new GmxReader();
+        var xmlR  = new XmlReader();
 
         // Get the repo xml file 
         var repoXml = webDl.getRepository(_repo);

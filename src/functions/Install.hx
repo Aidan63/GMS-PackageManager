@@ -2,7 +2,7 @@ package src.functions;
 
 import src.WebDownloader;
 import src.FileHandler;
-import src.GmxReader;
+import src.XmlReader;
 
 class Install
 {   
@@ -25,7 +25,7 @@ class Install
     {
         var fh   :FileHandler   = new FileHandler  ();
         var webDl:WebDownloader = new WebDownloader();
-        var gmxR :GmxReader     = new GmxReader    ();
+        var gmxR :XmlReader     = new XmlReader    ();
 
         var pkgsToInstall = new List<String>();
 

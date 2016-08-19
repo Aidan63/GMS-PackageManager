@@ -11,7 +11,7 @@ class Update
     {
         var fh    = new FileHandler();
         var webDl = new WebDownloader();
-        var xmlR  = new GmxReader();
+        var xmlR  = new XmlReader();
 
         // Get a list all repos
         var repoList = fh.getReposList();

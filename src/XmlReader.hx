@@ -8,7 +8,7 @@ import Main;
 
 using Lambda;
 
-class GmxReader
+class XmlReader
 {
     private var xmlDoc:String = "";
 
