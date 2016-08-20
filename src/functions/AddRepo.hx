@@ -17,22 +17,31 @@ class AddRepo
         var webDl = new WebDownloader();
         var xmlR  = new XmlReader();
 
-        // Get the repo xml file 
-        var repoXml = webDl.getRepository(_repo);
-
-        if (repoXml != "")
+        if (!fh.repoAlreadyAdded(_repo))
         {
-            // Add the repo url to the repositories.list file
-            fh.addRepository(_repo);
-            // Return a map with info about the repo
-            var results = xmlR.readRepoXml(repoXml);
+            // Get the repo xml file 
+            var repoXml = webDl.getRepository(_repo);
 
-            Sys.println(results.get("name") + " successfully added");
-            Sys.println("Owned by " + results.get("owner") + ":" + results.get("email"));
+            if (repoXml != "")
+            {
+                // Add the repo url to the repositories.list file
+                fh.addRepository(_repo);
+
+                // Return a map with info about the repo
+                var results = xmlR.readRepoXml(repoXml);
+
+                Sys.println(results.get("name") + " successfully added");
+                Sys.println("Owned by " + results.get("owner") + ":" + results.get("email"));
+            }
+            else
+            {
+                // Exit code for failing to download the package xml
+                Sys.exit(0);
+            }
         }
         else
         {
-            // Exit code for failing to download the package xml
+            Sys.println("Repository is already added");
             Sys.exit(0);
         }
     }

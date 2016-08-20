@@ -479,10 +479,7 @@ class FileHandler
         }
     }
 
-    // =============== Remove Functions =============== //
-
-
-
+    // =============== Repository Functions =============== //
 
     /// Adds a url to the repositories.list file
     public function addRepository(_repo:String) : Void
@@ -522,10 +519,30 @@ class FileHandler
         file.close();
     }
 
+    /// Returns if the repo has already been added to the repositories.list file
+    public function repoAlreadyAdded(_repo) : Bool
+    {
+        var repoPath = Path.join([Const.getDataConfig(), "repositories.list"]);
+        var file     = File.read(repoPath, false);
 
-    
+        // Loop over each line looking for one which matches the argument
+        try
+        {
+            while (true)
+            {
+                var line = file.readLine();
+                if (line == _repo)
+                {
+                    file.close();
+                    return true;
+                }
+            }
+        }
+        catch (err:Dynamic) { /* Catch end of file */ }
 
-
+        file.close();
+        return false;
+    }
 
     /// Returns a list of every repo url from repositories.list
     public function getReposList() : List<String>
