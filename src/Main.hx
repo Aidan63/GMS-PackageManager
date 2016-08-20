@@ -2,7 +2,6 @@ package;
 
 import Sys.args;
 import src.FileHandler;
-import src.XmlReader;
 import src.functions.*;
 
 class Main

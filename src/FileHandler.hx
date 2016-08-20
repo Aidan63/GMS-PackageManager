@@ -1,6 +1,5 @@
 package src;
 
-import files.*;
 import haxe.io.Path;
 import sys.io.*;
 import sys.FileSystem;

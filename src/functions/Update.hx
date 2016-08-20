@@ -1,5 +1,9 @@
 package src.functions;
 
+import src.WebDownloader;
+import src.FileHandler;
+import src.XmlReader;
+
 class Update
 {
     public function new()

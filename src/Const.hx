@@ -1,7 +1,6 @@
 package src;
 
 import haxe.io.Path;
-import sys.FileSystem;
 import Sys;
 
 class Const

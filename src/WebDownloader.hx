@@ -1,7 +1,6 @@
 package src;
 
 import haxe.Http;
-import haxe.io.BytesOutput;
 import src.FileHandler;
 
 class WebDownloader
