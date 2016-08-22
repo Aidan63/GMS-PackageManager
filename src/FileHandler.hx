@@ -499,7 +499,7 @@ class FileHandler
         else
         {
             Sys.println("Unable to remove repository as repositories.list could not be found");
-            Sys.exit(0);
+            Sys.exit(8);
         }
     }
 
