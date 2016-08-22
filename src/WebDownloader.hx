@@ -5,8 +5,8 @@ import src.FileHandler;
 
 class WebDownloader
 {
-    public function new() {
-        //
+    public function new()
+    {
     }
     
     public function downloadPackages(_packageUrl:String, _packageName:String) : Void

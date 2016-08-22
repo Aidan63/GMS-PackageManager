@@ -33,11 +33,6 @@ class AddRepo
                 Sys.println(results.get("name") + " successfully added");
                 Sys.println("Owned by " + results.get("owner") + ":" + results.get("email"));
             }
-            else
-            {
-                // Exit code for failing to download the package xml
-                Sys.exit(0);
-            }
         }
         else
         {

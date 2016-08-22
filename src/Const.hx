@@ -9,9 +9,9 @@ class Const
 
     public function new()
     {
-        //
     }
 
+    /// Returns the path for the base config storage
     public static function getDataConfig() : String
     {
         switch (Sys.systemName())
@@ -30,6 +30,7 @@ class Const
         return "";
     }
 
+    /// Returns the path for the folder where packages are stored
     public static function getDataPack() : String
     {
         switch (Sys.systemName())

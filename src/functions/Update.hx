@@ -8,7 +8,6 @@ class Update
 {
     public function new()
     {
-        //
     }
 
     public function updatePackages() : Void

@@ -9,7 +9,6 @@ class Remove
 {
     public function new()
     {
-        //
     }
     
     public function removePackages(_packages:Array<String>) : Void
@@ -24,7 +23,7 @@ class Remove
             {
                 Sys.println(_pkg + " is not installed.");
                 Sys.println("Unable to find " + _pkg + ".xml in the projects 'packages' directory");
-                Sys.exit(0);
+                Sys.exit(4);
             }
         }
 
@@ -34,44 +33,36 @@ class Remove
             var manifest   = fh.getInstalledManifest(_pkg);
             var projectGmx = fh.getGmx();
 
+            // returns lists containing all the resouces to be removed from the project
             var resourcesList       :List<String> = gmxR.getPackageResources(manifest);
             var datafilesParentNodes:List<String> = gmxR.getPackageDatafiles(manifest);
             var packageConstants    :List<String> = gmxR.getPackageConstants(manifest);
 
-            // Remove the package xml from the project xml and returns a string for writing to the file
+            // Remove the package xml from the project xml and returns a string for writing to a file
             projectGmx = gmxR.removePackageXml(projectGmx, resourcesList, datafilesParentNodes, packageConstants);
 
             // Remove any package files from the project directory (optional eventually)
             fh.removePackageFiles(resourcesList, datafilesParentNodes);
 
-            // Cleanup the xml by spliting it into an array, removing any white space, and checking for empty tags
-            // Then convert that array into one string, parse it to xml then convert the formatted xml back to a string...
+            // Cleanup the xml by spliting it into an array, removing any white space, and checking and removing empty tags
             projectGmx = removeEmptyXml(projectGmx);
             
+            // Write the xml to the .project.gmx then remove the package manifest from the project 'packages' folder
             fh.writeNewXml(projectGmx);
             fh.removeLocalManifest(_pkg);
 
             Sys.println(_pkg + " successfully removed");
         }
-
-        // Non safe (non package elements could potentially be removed) removal method (cleaner xml)
-        /*
-        for (pkg in _packages)
-        {
-            var manifest   = fh.getInstalledManifest(pkg);
-            var projectGmx = fh.getGmx();
-
-            projectGmx = gmxR.removePackageNonSafe(projectGmx, pkg, gmxR.getPackageConstants(manifest));
-        }
-        */
     }
 
+    /// Split the xml into an array and loop over it checking for empty tags of all the resource types
     public function removeEmptyXml(_xml:String) : String
     {
         var tags  = [ "<sound/>", "<sprite/>", "<background/>", "<path/>", "<font/>", "<script/>", "<object/>", "<room/>" ];
         var lines = _xml.split("\n");
         var list  = new List<String>();
 
+        // Loop over the array and trim any whitespace before checking against the tags array
         for (line in lines)
         {
             var currentLine = line.trim();
@@ -92,6 +83,7 @@ class Remove
             }
         }
 
+        // Use a string buffer to build the new xml structure and return it as a string
         var strBuf = new StringBuf();
         for (line in list)
         {

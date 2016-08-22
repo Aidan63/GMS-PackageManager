@@ -12,7 +12,6 @@ class FileHandler
     //
     public function new()
     {
-        //
     }
 
     // =============== General Functions =============== //
@@ -45,15 +44,17 @@ class FileHandler
             var file = File.read(Const.getDataConfig() + "packages.list", false);
             try
             {
+                // Package lines are split as 'name,URL' so splitting by the comma gets the name and url seperate
+                // If a match based on the name is found return the url of that package
                 while (!file.eof())
                 {
-                    var _line      = file.readLine();
-                    var _splitLine = _line.split(",");
+                    var line      = file.readLine();
+                    var splitLine = line.split(",");
                     
-                    if (_splitLine[0] == _package)
+                    if (splitLine[0] == _package)
                     {
                         file.close();
-                        return _splitLine[1];
+                        return splitLine[1];
                     }
                 }
                 
@@ -74,26 +75,27 @@ class FileHandler
     /// Returns the GMX in the current directory
     public function getGmx() : String
     {
+        // Split the path by the '/' and try to split the basename by a period
+        // If the split was successful then we assume the current directory is a GMS .gmx
         var split  = Path.removeTrailingSlashes(Const.CURRENTDIR).split("/");
         var topDir = split[split.length - 1].split(".");
 
+        // Using that info we can take the name part before the .gmx and add .project.gmx to it to get the project xml file name
         if (topDir.length >= 2)
         {
-            var sb = new StringBuf();
-            sb.add(topDir[0]);
-            sb.add(".project.gmx");
+            var gmxFile = topDir[0] + ".project.gmx";
+            var path = Path.join([Const.CURRENTDIR, gmxFile]);
 
-            var path = Path.join([Const.CURRENTDIR, sb.toString()]);
             if (FileSystem.exists(path))
             {
                 return File.getContent(path);
             }
             else
             {
-                println("Unable to find " + split[split.length - 1] + ".project.gmx");
+                println("Unable to find " + gmxFile);
                 removeDirRecursive(Const.getDataConfig() + "tmp");
-                Sys.exit(0);
-                return "";
+                Sys.exit(5);
+                return null;
             }
         }
         else
@@ -101,7 +103,7 @@ class FileHandler
             println("not in a .gmx directory");
             removeDirRecursive(Const.getDataConfig() + "tmp");
             Sys.exit(0);
-            return "";
+            return null;
         }
     }
 
@@ -116,14 +118,17 @@ class FileHandler
                 var zipBytes = File.read(zipPath);
                 var zipData = Reader.readZip(zipBytes);
                 
-                for (_entry in zipData)
+                // Loop over every file in the archive, unzip it, and write it to the tmp folder based on its place in the archive
+                for (entry in zipData)
                 {
-                    var fileName  = _entry.fileName;
+                    var fileName  = entry.fileName;
                     var structure = Path.removeTrailingSlashes(fileName).split("/");
                     var basePath  = Const.getDataConfig() + "tmp";
 
+                    // Current item has no file extension so is assumed to be a folder
                     if (Path.extension(structure[structure.length - 1]) == "")
                     {
+                        // Create that directory based on its position in the archive
                         var path = "";
                         for (item in structure)
                         {
@@ -134,7 +139,7 @@ class FileHandler
                     else
                     {
                         // Create the path structure to store the file in the correct folder
-                        var data = Reader.unzip(_entry);
+                        var data = Reader.unzip(entry);
                         var file = File.write(basePath + "/" + fileName, true);
                         file.write(data);
                         file.close();
@@ -163,7 +168,7 @@ class FileHandler
             println("The package may be corrupt or incomplete.");
             println("Please try redownloading the package or contacting the package maintainer");
             removeDirRecursive(Const.getDataConfig() + "tmp");
-            Sys.exit(0);
+            Sys.exit(7);
             return "";
         }
     }
@@ -201,11 +206,8 @@ class FileHandler
 
         if (topDir.length >= 2)
         {
-            var sb = new StringBuf();
-            sb.add(topDir[0]);
-            sb.add(".project.gmx");
-
-            var path = Path.join([Const.CURRENTDIR, sb.toString()]);
+            var gmxFile = topDir[0] + ".project.gmx";
+            var path = Path.join([Const.CURRENTDIR, gmxFile]);
 
             if (FileSystem.exists(path))
             {
@@ -230,23 +232,27 @@ class FileHandler
 
     // =============== Install Functions =============== //
 
-    /// Returns true / false if the package provided is found in the packges.list file
+    /// Returns a bool based on if the package provided is found in the packges.list file
     public function packageAvailable(_package:String) : Bool
     {
         if (FileSystem.exists(Const.getDataConfig() + "packages.list"))
         {
             var file = File.read(Const.getDataConfig() + "packages.list", false);
-            while (!file.eof())
+            try
             {
-                var line = file.readLine();
-                var split = line.split(",");
-
-                if (split[0] == _package)
+                while (!file.eof())
                 {
-                    file.close();
-                    return true;
+                    var line  = file.readLine();
+                    var split = line.split(",");
+
+                    if (split[0] == _package)
+                    {
+                        file.close();
+                        return true;
+                    }
                 }
             }
+            catch (e:haxe.io.Eof) { /* EOF exception catch */ }
 
             file.close();
             return false;
@@ -260,14 +266,7 @@ class FileHandler
     /// Returns true / false if there is a zip file of the package provided
     public function packageIsDownloaded(_package:String) : Bool
     {
-        if (FileSystem.exists(Const.getDataPack() + _package + ".gmp"))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return FileSystem.exists(Const.getDataPack() + _package + ".gmp");
     }
     
     // Writes the downloaded zip file to the package folder
@@ -322,39 +321,22 @@ class FileHandler
     }
 
     /// Removes all the general resource files from the xml
+    /// TODO : A fair bit of this could be cleaned up
     public function removePackageFiles(_resourcesList:List<String>, _datafilesParents:List<String>) : Void
     {
-        for (_item in _resourcesList)
+        for (item in _resourcesList)
         {
             var pwd      = Path.removeTrailingSlashes(Const.CURRENTDIR).split("/");
-            var split    = _item.split("\\");
+            var split    = item.split("\\");
             var absPath  = "/" + Path.normalize(Path.join(pwd.concat(split)));
 
             switch (split[0])
             {
-                // The following resources have .$tpye.gmx appended to the end or nothing for scripts
+                // scripts can removed with no changes as they are just .gml
                 case "scripts":
                     if (FileSystem.exists(absPath))
                     {
                         FileSystem.deleteFile(absPath);
-                    }
-
-                case "objects":
-                    if (FileSystem.exists(absPath + ".object.gmx"))
-                    {
-                        FileSystem.deleteFile(absPath + ".object.gmx");
-                    }
-
-                case "paths":
-                    if (FileSystem.exists(absPath + ".path.gmx"))
-                    {
-                        FileSystem.deleteFile(absPath + ".path.gmx");
-                    }
-
-                case "rooms":
-                    if (FileSystem.exists(absPath + ".room.gmx"))
-                    {
-                        FileSystem.deleteFile(absPath + ".room.gmx");
                     }
 
                 case "shaders":
@@ -363,49 +345,42 @@ class FileHandler
                         FileSystem.deleteFile(absPath + ".shader");
                     }
 
-                case "timelines":
-                    if (FileSystem.exists(absPath + ".timeline.gmx"))
+                //
+                case "objects", "paths", "rooms", "timelines", "fonts", "sound", "background", "sprites":
+                    // If the resource type has an 's' on the end of it tremove it
+                    var resource = split[0];
+                    if (split[0].charAt(split[0].length - 1) == "s")
                     {
-                        FileSystem.deleteFile(absPath + ".timeline.gmx");
+                        resource = split[0].substr(0, split[0].length - 1); 
                     }
 
-                // Fonts create a png consisting of that font in the same folder as the .font.gmx
-                case "fonts":
-                    if (FileSystem.exists(absPath + ".font.gmx"))
+                    // General resource file checking
+                    if (FileSystem.exists(absPath + "." + resource + ".gmx"))
                     {
-                        FileSystem.deleteFile(absPath + ".font.gmx");
+                        FileSystem.deleteFile(absPath + "." + resource + ".gmx");
                     }
-                    if (FileSystem.exists(absPath + ".png"))
+
+                    // Remove font files
+                    if (split[0] == "fonts" && FileSystem.exists(absPath + ".png"))
                     {
                         FileSystem.deleteFile(absPath + ".png");
                     }
-                    
-                // Probably Shaders
 
-                // The following resources have extra files which need to removed as well
-                case "sound":
-                    if (FileSystem.exists(absPath + ".sound.gmx"))
+                    // Remove sound and background resources (could probably move this into one if eventually)
+                    if (split[0] == "sound")
                     {
-                        FileSystem.deleteFile(absPath + ".sound.gmx");
+                        removeGeneralResource(split[1], "sound", "audio");
+                    }
+                    if (split[0] == "background")
+                    {
+                        removeGeneralResource(split[1], "background", "images");
                     }
 
-                    removeGeneralResource(split[1], "sound", "audio");
-
-                case "background":
-                    if (FileSystem.exists(absPath + ".background.gmx"))
+                    // Remove sprite files
+                    if (split[0] == "sprites")
                     {
-                        FileSystem.deleteFile(absPath + ".background.gmx");
+                        removeSpriteFiles(split[1]);
                     }
-
-                    removeGeneralResource(split[1], "background", "images");
-
-                case "sprites":
-                    if (FileSystem.exists(absPath + ".sprite.gmx"))
-                    {
-                        FileSystem.deleteFile(absPath + ".sprite.gmx");
-                    }
-
-                    removeSpriteFiles(split[1]);
 
                 // Extensions special case
                 case "extensions":
@@ -422,12 +397,12 @@ class FileHandler
             }
         }
 
-        // TODO : Remove datafiles
-        for (_item in _datafilesParents)
+        /// Looks for a folder with the same name as the item and recursivly delete it
+        for (item in _datafilesParents)
         {
             //trace(_item);
             var absPath = Path.join([Const.CURRENTDIR, "datafiles"]);
-            var dirPath = Path.join([absPath, _item]);
+            var dirPath = Path.join([absPath, item]);
 
             if (FileSystem.exists(dirPath) && FileSystem.isDirectory(dirPath))
             {
@@ -467,7 +442,7 @@ class FileHandler
         {
             if (!FileSystem.isDirectory(Path.join([path, file])))
             {
-                // GMS treats each frame as a seprate image file on disk with the _x appended to the end of the file name
+                // GMS treats each frame as a seprate image file on disk with the _x (x being frame id int) appended to the end of the file name
                 // Getting the substring of the input file with find any matches regardless of the _x part
                 var fileName = file.substring(0, _file.length);
                 if (fileName == _file)
@@ -493,29 +468,39 @@ class FileHandler
     public function removeRepository(_repo:String) : Void
     {
         var repoPath = Path.join([Const.getDataConfig(), "repositories.list"]);
-        var content  = File.getContent(repoPath);
-        var repos    = new List<String>();
 
-        var file = File.read(repoPath, false);
-        try
+        if (FileSystem.exists(repoPath))
         {
-            while (true)
+            var repos = new List<String>();
+            var file  = File.read(repoPath, false);
+
+            // Add every line in the file to the list
+            try
             {
-                repos.add(file.readLine());
+                while (!file.eof())
+                {
+                    repos.add(file.readLine());
+                }
+            }
+            catch (err:haxe.io.Eof) { /* Catch end of file */ }
+            file.close();
+
+            // Now loop over that list and only write back the lines where the repositories do not match
+            var file = File.write(repoPath, false);
+            for (repo in repos)
+            {
+                if (repo != _repo)
+                {
+                    file.writeString(repo + "\n");
+                }
             }
             file.close();
         }
-        catch (err:Dynamic) {}
-
-        var file = File.write(repoPath, false);
-        for (repo in repos)
+        else
         {
-            if (repo != _repo)
-            {
-                file.writeString(repo + "\n");
-            }
+            Sys.println("Unable to remove repository as repositories.list could not be found");
+            Sys.exit(0);
         }
-        file.close();
     }
 
     /// Returns if the repo has already been added to the repositories.list file
@@ -549,23 +534,26 @@ class FileHandler
         var list = new List<String>();
         var file = File.read(Path.join([Const.getDataConfig(), "repositories.list"]));
 
-        try {
+        // Loop over every line in the file and add it to a list
+        try
+        {
             while (!file.eof())
             {
                 list.add(file.readLine());
             }
         }
-        catch (err:Dynamic) {}
+        catch (err:haxe.io.Eof) { /* Catch end of file */ }
 
         file.close();
-
         return list;
     }
 
+    /// Adds package names and their url to the packages.list file and returns the number of packages added
     public function addPackagesToList(_list:List<Array<String>>, _pkgNumb:Int) : Int
     {
         var file = File.write(Path.join([Const.getDataConfig(), "packages.list"]));
 
+        // Write the package name and the url for each array to the packages.list file
         for (array in _list)
         {
             file.writeString(array[0] + "," + array[1] + "\n");
@@ -573,7 +561,6 @@ class FileHandler
         }
 
         file.close();
-
         return _pkgNumb;
     }
 }

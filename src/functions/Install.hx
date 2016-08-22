@@ -3,6 +3,7 @@ package src.functions;
 import src.WebDownloader;
 import src.FileHandler;
 import src.XmlReader;
+import src.Const;
 
 class Install
 {   

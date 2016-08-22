@@ -7,13 +7,10 @@ using Lambda;
 
 class XmlReader
 {
-    private var xmlDoc:String = "";
-
     public function new()
     {
-        //
     }
-
+    
     /// Recursivly loop over the datafile elements and set the number attribute to the root number
     public function datafilesSetNumber(_xml:Xml, _number:String) : Void
     {
@@ -141,46 +138,46 @@ class XmlReader
         // Create the non existsing elements
         if (existsDatafiles == false)
         {
-            var _xml = Xml.createElement("datafiles");
-            _xml.set("name", "datafiles");
-            _xml.set("number", "0");
-            assets.addChild(_xml);
+            var xml = Xml.createElement("datafiles");
+            xml.set("name", "datafiles");
+            xml.set("number", "0");
+            assets.addChild(xml);
         }
         if (existsFonts == false)
         {
-            var _xml = Xml.createElement("fonts");
-            _xml.set("name", "fonts");
-            assets.addChild(_xml);
+            var xml = Xml.createElement("fonts");
+            xml.set("name", "fonts");
+            assets.addChild(xml);
         }
         if (existsScripts == false)
         {
-            var _xml = Xml.createElement("scripts");
-            _xml.set("name", "scripts");
-            assets.addChild(_xml);
+            var xml = Xml.createElement("scripts");
+            xml.set("name", "scripts");
+            assets.addChild(xml);
         }
         if (existsObjects == false)
         {
-            var _xml = Xml.createElement("objects");
-            _xml.set("name", "objects");
-            assets.addChild(_xml);
+            var xml = Xml.createElement("objects");
+            xml.set("name", "objects");
+            assets.addChild(xml);
         }
         if (existsRooms == false)
         {
-            var _xml = Xml.createElement("rooms");
-            _xml.set("name", "rooms");
-            assets.addChild(_xml);
+            var xml = Xml.createElement("rooms");
+            xml.set("name", "rooms");
+            assets.addChild(xml);
         }
         if (existsConstants == false)
         {
-            var _xml = Xml.createElement("constants");
-            _xml.set("number", "0");
-            assets.addChild(_xml);
+            var xml = Xml.createElement("constants");
+            xml.set("number", "0");
+            assets.addChild(xml);
         }
         if (existsAudiogroup == false)
         {
-            var _xml = Xml.createElement("audiogroups");
-            _xml.set("name", "audiogroups");
-            assets.addChild(_xml);
+            var xml = Xml.createElement("audiogroups");
+            xml.set("name", "audiogroups");
+            assets.addChild(xml);
         }
 
         return assets;
@@ -193,22 +190,22 @@ class XmlReader
         var assetsXml  = Xml.parse(_pkgManifest).firstElement();
 
         // Handle special case resources and remove them to make the normal ones easier to parse
-        for (_elt in assetsXml.elements())
+        for (elt in assetsXml.elements())
         {
             // Remove "datafiles" and "constants" from the xml to make it easier to parse
-            if (_elt.nodeName == "datafiles" || _elt.nodeName == "constants")
+            if (elt.nodeName == "datafiles" || elt.nodeName == "constants")
             {
-                assetsXml.removeChild(_elt);
+                assetsXml.removeChild(elt);
             }
 
             // Add any extension elements to the list then remove them from the xml
-            if (_elt.nodeName == "NewExtensions")
+            if (elt.nodeName == "NewExtensions")
             {
-                for (_child in _elt.elements())
+                for (_child in elt.elements())
                 {
                     assetsList.add(_child.firstChild().nodeValue);
                 }
-                assetsXml.removeChild(_elt);
+                assetsXml.removeChild(elt);
             }
         }
 
@@ -224,15 +221,16 @@ class XmlReader
         var parentNodes = new List<String>();
         var assetsXml   = Xml.parse(_pkgManifest).firstElement();
 
-        for (_elt in assetsXml.elements())
+        // Adds the 'name' attribute for all first level xml elements from the package manifest
+        for (elt in assetsXml.elements())
         {
-            if (_elt.get("name") == "datafiles")
+            if (elt.get("name") == "datafiles")
             {
-                for (_nodes in _elt.elements())
+                for (nodes in elt.elements())
                 {
-                    if (_nodes.exists("name"))
+                    if (nodes.exists("name"))
                     {
-                        parentNodes.add(_nodes.get("name"));
+                        parentNodes.add(nodes.get("name"));
                     }
                 }
             }
@@ -268,15 +266,15 @@ class XmlReader
     /// If the current node is an element call the function again passing that element through
     public function addElementAssets(_xml:Xml, _list:List<String>) : List<String>
     {
-        for (_elt in _xml.elements())
+        for (elt in _xml.elements())
         {
-            if (_elt.exists("name"))
+            if (elt.exists("name"))
             {
-                _list = addElementAssets(_elt, _list);
+                _list = addElementAssets(elt, _list);
             }
             else
             {
-                for (_child in _elt)
+                for (_child in elt)
                 {
                     _list.add(_child.nodeValue);
                 }
@@ -293,56 +291,55 @@ class XmlReader
 
         // Safe removal for standard resources
         // Loops over each child node checking against the list and removing it if a match is found
-        for (_elt in gmx.elements())
+        for (elt in gmx.elements())
         {
             // Searching for standard resources
-            if (_elt.nodeName != "datafiles" && _elt.nodeName != "NewExtensions" && _elt.nodeName != "constants")
+            if (elt.nodeName != "datafiles" && elt.nodeName != "NewExtensions" && elt.nodeName != "constants")
             {
-                searchXmlTree(_elt, _resourceList);
+                searchXmlTree(elt, _resourceList);
             }
 
             // Remove any matching extension elements
-            if (_elt.nodeName == "NewExtensions")
+            if (elt.nodeName == "NewExtensions")
             {
-                for (_child in _elt.elements())
+                for (child in elt.elements())
                 {
-                    for (_item in _resourceList)
+                    for (item in _resourceList)
                     {
-                        if (_item == _child.firstChild().nodeValue)
+                        if (item == child.firstChild().nodeValue)
                         {
-                            _elt.removeChild(_child);
+                            elt.removeChild(child);
                         }
                     }
                 }
             }
 
             // Remove any constants from the project xml
-            if (_elt.nodeName == "constants")
+            if (elt.nodeName == "constants")
             {
-                for (child in _elt.elements())
+                for (child in elt.elements())
                 {
                     for (constName in _constantsList)
                     {
                         if (constName == child.get("name"))
                         {
-                            _elt.removeChild(child);
+                            elt.removeChild(child);
                         }
                     }
                 }
             }
 
-            // Remove the root element of any datafiles 
-            // This method is 'non safe' as non package resources could be deleted removed from the xml
-            // The physical files remain untouched however
-            if (_elt.nodeName == "datafiles")
+            // Remove the root element of any datafiles
+            // TODO : Look for the root name in sub folder instead of just the top level
+            if (elt.nodeName == "datafiles")
             {
-                for (_child in _elt.elements())
+                for (child in elt.elements())
                 {
-                    for (_item in _datafilesList)
+                    for (item in _datafilesList)
                     {
-                        if (_child.get("name") == _item)
+                        if (child.get("name") == item)
                         {
-                            _elt.removeChild(_child);
+                            elt.removeChild(child);
                         }
                     }
                 }
@@ -353,25 +350,28 @@ class XmlReader
         return XmlPrinter.print(gmx, false, SPACES(2));
     }
 
-    ///
-    public function searchXmlTree(_xml:Xml, _list:List<String>) : Void
+    /// Recursivly search through the provided xml for any matching elements from the list
+    /// Matching xml is then removed
+    public function searchXmlTree(_xml:Xml, _resourceList:List<String>) : Void
     {
-        for (_elt in _xml.elements())
+        for (elt in _xml.elements())
         {
-            if (_elt.exists("name"))
+            // Having the attribute 'name' means it is a folder not a end element
+            // So we call the function again and search that sub folder
+            if (elt.exists("name"))
             {
-                searchXmlTree(_elt, _list);
+                searchXmlTree(elt, _resourceList);
             }
             else
             {
-                for (_child in _elt)
+                for (child in elt)
                 {
                     // Search for matching items in the list
-                    for (_item in _list)
+                    for (item in _resourceList)
                     {
-                        if (_item == _child.nodeValue)
+                        if (item == child.nodeValue)
                         {
-                            _elt.removeChild(_elt.firstChild());
+                            elt.removeChild(elt.firstChild());
                         }
                     }
                 }
