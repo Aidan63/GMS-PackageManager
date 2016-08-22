@@ -1,6 +1,7 @@
 package src;
 
 import haxe.io.Path;
+import sys.io.File;
 import sys.FileSystem;
 import Sys;
 
@@ -16,6 +17,13 @@ class Const
             FileSystem.createDirectory(getDataConfig());
             FileSystem.createDirectory(getDataPack());
             FileSystem.createDirectory(Path.join([getDataConfig(), "tmp"]));
+
+            // Opening a file in write mode will create the file even if we don't write any data
+            var fileRepo = File.write(Path.join([getDataConfig(), "repositories.list"]));
+            var filePkgs = File.write(Path.join([getDataConfig(), "packages.list"]));
+
+            fileRepo.close();
+            filePkgs.close();
         }
     }
 
