@@ -3,14 +3,17 @@ package;
 import Sys.args;
 import src.FileHandler;
 import src.functions.*;
+import src.Const;
 
 class Main
 {
     public static function main()
     {
+        Const.setupStorage();
+        
         var cliArgs:Array<String> = args();
         if (cliArgs.length > 0)
-        {            
+        {
             switch (cliArgs[0])
             {
                 case "update":
