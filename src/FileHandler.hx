@@ -230,6 +230,12 @@ class FileHandler
         return File.getContent(Path.join([Const.CURRENTDIR, "packages", _pkg+".xml"]));
     }
 
+    /// Returns true / false if there is a zip file of the package provided
+    public function packageIsDownloaded(_package:String) : Bool
+    {
+        return FileSystem.exists(Const.getDataPack() + _package + ".gmp");
+    }
+
     // =============== Install Functions =============== //
 
     /// Returns a bool based on if the package provided is found in the packges.list file
@@ -261,12 +267,6 @@ class FileHandler
         {
             return false;
         }
-    }
-
-    /// Returns true / false if there is a zip file of the package provided
-    public function packageIsDownloaded(_package:String) : Bool
-    {
-        return FileSystem.exists(Const.getDataPack() + _package + ".gmp");
     }
     
     // Writes the downloaded zip file to the package folder
@@ -535,6 +535,24 @@ class FileHandler
         var file = File.read(Path.join([Const.getDataConfig(), "repositories.list"]));
 
         // Loop over every line in the file and add it to a list
+        try
+        {
+            while (!file.eof())
+            {
+                list.add(file.readLine());
+            }
+        }
+        catch (err:haxe.io.Eof) { /* Catch end of file */ }
+
+        file.close();
+        return list;
+    }
+
+    public function getPackageList() : List<String>
+    {
+        var list = new List<String>();
+        var file = File.read(Path.join([Const.getDataConfig(), "packages.list"]));
+
         try
         {
             while (!file.eof())

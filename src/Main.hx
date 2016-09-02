@@ -52,7 +52,7 @@ class Main
                     trace("find");
 
                 case "list":
-                    trace("list");
+                    var ls:ListPkgs = new ListPkgs();
 
                 case "help":
                     trace("help");
