@@ -4,6 +4,7 @@ import src.WebDownloader;
 import src.FileHandler;
 import src.XmlReader;
 import src.Const;
+import haxe.io.Path;
 
 class Install
 {   
@@ -94,7 +95,7 @@ class Install
 
                 // Backup the current .project.gmx and write the new xml to a file
                 fh.writeNewXml(newProjectGmx);
-                fh.removeDirRecursive(Const.getDataConfig() + "tmp");
+                fh.removeDirRecursive(Path.join([Const.getDataConfig() + "tmp"]));
 
                 Sys.println(pkg + " successfully installed");
             }
