@@ -45,6 +45,9 @@ class Main
                     var fh:FileHandler = new FileHandler();
                     fh.removeRepository(cliArgs[0]);
                     
+                case "create":
+                    var pkg:CreatePackage = new CreatePackage();
+
                 case "self-upgrade":
                     trace("Self Upgrade");
 

@@ -5,6 +5,11 @@ import sys.io.*;
 import sys.FileSystem;
 import Sys.println;
 import haxe.zip.Reader;
+import haxe.zip.Entry;
+import haxe.zip.Tools;
+import haxe.zip.Writer;
+import haxe.io.BytesOutput;
+import haxe.crypto.Crc32;
 import src.Const;
 
 class FileHandler
@@ -580,5 +585,230 @@ class FileHandler
 
         file.close();
         return _pkgNumb;
+    }
+
+    // =============== Create Pkg Functions =============== //
+
+    /**
+     * Creates a folder in the tmp gmr directory and adds file to that folder then zips it up into a valid package zip.
+     *
+     * @param   _pkgName        The name of the package.
+     * @param   _manifestXml    The xml structure to be saved into the manifest file.
+     * @param   _resource       List containing the names of all the resources which need to be copied from the project dir to the tmp dir
+     * @param   _datafile       List containing the names of all the datafiles which need to be copied from the project dir to the tmp dir
+     */
+    public function createPackageDirectory(_pkgName:String, _manifestXml:Xml, _resources:List<String>, _datafiles:List<String>) : Void
+    {
+        // Create a folder in the tmp dir to store the package content
+        var tmpPkgDirectory = Path.join([Const.getDataConfig(), "tmp", _pkgName]);
+        FileSystem.createDirectory(tmpPkgDirectory);
+
+        // Save the manifest to directory
+        File.saveContent(Path.join([tmpPkgDirectory, "manifest.xml"]), xmlTools.XmlPrinter.print(_manifestXml, false, SPACES(2)));
+        
+        // Copy standard resources
+        for (_res in _resources)
+        {
+            moveResourceToPkg(_res, Const.CURRENTDIR, tmpPkgDirectory);
+        }
+
+        /**
+         * Loops over every item in the project datafiles folder looking for a matching file.
+         * If a matching file is found make the equivilent subdirectory in the tmp folder and copy the file over. 
+         *
+         * @param   _datafile   The name of the datafile to search for.
+         * @param   _path       The path of the directory to search in.
+         */
+        function searchAndCopyDatafile(_datafile:String, _path:String) : Void
+        {
+            for (item in FileSystem.readDirectory(_path))
+            {
+                if (!FileSystem.isDirectory(Path.join([_path, item])))
+                {
+                    if (item == _datafile)
+                    {
+                        // Uses the base project datafiles path to mask and seperate the sub directory path
+                        // then pop the end item off as it's the actual file name
+                        var pathFull   = Path.join([_path, item]).split("/");
+                        var pathOffset = Path.join([Const.CURRENTDIR, "datafiles"]).split("/");
+                        var dir = pathFull.slice(pathOffset.length);
+                        dir.pop();
+
+                        // Move the file to the tmp package dir
+                        var datafileDir = Path.join([tmpPkgDirectory, "datafiles"].concat(dir)); 
+                        FileSystem.createDirectory(datafileDir);
+                        File.copy(Path.join([_path, item]), Path.join([datafileDir, item]));
+                    }
+                }
+                else
+                {
+                    searchAndCopyDatafile(_datafile, Path.join([_path, item]));
+                }
+            }
+        }
+
+        // Search through the directory for the datafiles found in the project xml and copy them over 
+        for (_df in _datafiles)
+        {
+            searchAndCopyDatafile(_df, Path.join([Const.CURRENTDIR, "datafiles"]));
+        }
+
+        zipPackageDirectory(tmpPkgDirectory, _pkgName);
+
+        // everything has been done, wipe the tmp dir
+        removeDirRecursive(Path.join([Const.getDataConfig() + "tmp"]));
+    }
+
+    public function moveResourceToPkg(_res:String, _projDir:String, _tmpPkgDir:String) : Void
+    {
+        var split = _res.split("\\");
+        var resType:String = split[0];
+        var resName:String = split[1];
+
+        // If the resType sub directory doesn't exist create it
+        var resDir = Path.join([_tmpPkgDir, resType]);
+        if (!FileSystem.exists(resDir))
+        {
+            FileSystem.createDirectory(resDir);
+        }
+
+        switch (resType)
+        {
+            case "extensions", "scripts", "shaders":
+                // Based on the resType get the right file extension
+                var resExt = "";
+                switch (resType)
+                {
+                    case "extensions": resExt = ".extension.gmx";
+                    case "scripts"   : resExt = "";
+                    case "shaders"   : resExt = ".shader";
+                }
+
+                // Move the extension file over
+                var _pathSrc  = Path.join([_projDir, resType, resName + resExt]);
+                var _pathDest = Path.join([resDir  , resName + resExt]);
+                File.copy(_pathSrc, _pathDest);
+
+            case "objects", "paths", "rooms", "timelines", "fonts", "sound", "background", "sprites":
+                // Create the subdir for specific resources if it doesn't exist yet 
+                var subDir = "";
+                switch (resType)
+                {
+                    case "sprites", "background": subDir = "images";
+                    case "sound"                : subDir = "audio" ;
+                }
+
+                if (subDir != "")
+                {
+                    var _path = Path.join([_tmpPkgDir, resType, subDir]);
+                    if (!FileSystem.exists(_path))
+                    {
+                        FileSystem.createDirectory(_path);
+                    }
+                }
+
+                // Get the resource part of the path eg. .sound.gmx, .sprite.gmx
+                // If the resource Type ends with 's' remove it
+                var resExt = "." + resType + ".gmx";
+                if (resType.charAt(resType.length - 1) == "s")
+                {
+                    resExt = "." + resType.substr(0, resType.length - 1) + ".gmx";
+                }
+
+                // Move the .gmx files and any additional files
+                var _pathSrc = Path.join([_projDir, resType, resName + resExt]);
+                var _pathDest = Path.join([resDir , resName + resExt]);
+                File.copy(_pathSrc, _pathDest);
+
+                // Font image files are not kept in a 'images' subfolder
+                // they might not even need to be transfered, will have to check
+                if (resType == "fonts")
+                {
+                    File.copy(Path.join([_projDir, resType, resName + ".png"]), Path.join([resDir, resName + ".png"]));
+                }
+
+                // Copy over any images or audio files for those resources that have them in sub directories
+                if (subDir != "")
+                {
+                    for (file in FileSystem.readDirectory(Path.join([_projDir, resType, subDir])))
+                    {
+                        var _fileSplit = Path.removeTrailingSlashes(file).split("/");
+                        var _fileName  = _fileSplit[_fileSplit.length - 1];
+
+                        // if the resname can fit in the current file then cut it to the length of the resname and check if they match
+                        if (_fileName.length > resName.length)
+                        {
+                            if (resName == _fileName.substr(0, resName.length))
+                            {
+                                var _pathSrc  = Path.join([_projDir, resType, subDir, file]);
+                                var _pathDest = Path.join([resDir  , subDir, file]);
+                                File.copy(_pathSrc, _pathDest);
+                            }
+                        }
+                    }
+                }
+        }
+    }
+
+    /**
+     * Loops over the created tmp package directory creating entries for each file which is added to the list
+     * Then the entries are compressed and added to a zip and saved to the package directory
+     *
+     * @param   _basePath   The absolute path of tmp package directory
+     */
+    public function zipPackageDirectory(_basePath:String, _pkgName:String) : Void
+    {
+        var packageEntries = new List<Entry>();
+
+        /**
+         * Recursive loop over the directory creating entires for each file found
+         * 
+         * @param   _path   The directory to search
+         */
+        function createEntriesOfDir(_path:String)
+        {
+            for (item in FileSystem.readDirectory(_path))
+            {
+                var path = Path.join([_path, item]);
+                if (!FileSystem.isDirectory(path))
+                {
+                    var pathFull   = path.split("/");
+                    var pathOffset = Path.join([Const.getDataConfig(), "tmp"]).split("/");
+                    var dir = Path.join(pathFull.slice(pathOffset.length));
+
+                    var fileBytes = File.getBytes(path);
+                    var entry:Entry = {
+                        fileName   : dir,
+                        fileSize   : fileBytes.length,
+                        fileTime   : Date.now(),
+                        compressed : false,
+                        dataSize   : 0,
+                        data       : fileBytes,
+                        crc32      : Crc32.make(fileBytes)
+                        };
+
+                    Tools.compress(entry, 1);
+                    packageEntries.add(entry);
+                }
+                else
+                {
+                    createEntriesOfDir(path);
+                }
+            }
+        }
+
+        // Start the zipping process
+        createEntriesOfDir(_basePath);
+
+        // Write the entries to a bytes stream
+        var bytesOutput = new BytesOutput();
+        var writer      = new Writer(bytesOutput);
+        writer.write(packageEntries);
+
+        // Write the bytes to a file
+        var zippedBytes = bytesOutput.getBytes();
+        var file = File.write(Path.join([Const.getDataConfig(), "packages", _pkgName + ".gmp"]), true);
+        file.write(zippedBytes);
+        file.close();
     }
 }

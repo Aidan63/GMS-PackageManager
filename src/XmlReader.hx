@@ -2,8 +2,10 @@ package src;
 
 import Xml;
 import xmlTools.XmlPrinter;
+import src.Const;
 
 using Lambda;
+using StringTools;
 
 class XmlReader
 {
@@ -187,7 +189,7 @@ class XmlReader
     public function getPackageResources(_pkgManifest:String) : List<String>
     {
         var assetsList = new List<String>();
-        var assetsXml  = Xml.parse(_pkgManifest).firstElement();
+        var assetsXml  = Xml.parse(_pkgManifest).firstElement().firstElement();
 
         // Handle special case resources and remove them to make the normal ones easier to parse
         for (elt in assetsXml.elements())
@@ -219,20 +221,29 @@ class XmlReader
     public function getPackageDatafiles(_pkgManifest:String) : List<String>
     {
         var parentNodes = new List<String>();
-        var assetsXml   = Xml.parse(_pkgManifest).firstElement();
+        var assetsXml   = Xml.parse(_pkgManifest).firstElement().firstElement();
+
+        function datafileSearch(_xml:Xml) : Void
+        {
+            for (elt in _xml.elements())
+            {
+                if (elt.nodeName == "datafile" && !elt.exists("name"))
+                {
+                    parentNodes.add(elt.firstElement().firstChild().nodeValue);
+                }
+                else
+                {
+                    datafileSearch(elt);
+                }
+            }
+        }
 
         // Adds the 'name' attribute for all first level xml elements from the package manifest
         for (elt in assetsXml.elements())
         {
-            if (elt.get("name") == "datafiles")
+            if (elt.nodeName == "datafiles")
             {
-                for (nodes in elt.elements())
-                {
-                    if (nodes.exists("name"))
-                    {
-                        parentNodes.add(nodes.get("name"));
-                    }
-                }
+                datafileSearch(elt);
             }
         }
 
@@ -399,7 +410,7 @@ class XmlReader
         return data;
     }
 
-    // Returns a list of every package name and url from a repo xml
+    /// Returns a list of every package name and url from a repo xml
     public function readRepoPackages(_repoXml:String) : List<Array<String>>
     {
         var xml = Xml.parse(_repoXml);
@@ -417,5 +428,149 @@ class XmlReader
         }
 
         return data;
+    }
+
+    /// Goes over a gmx xml file and gets any resource xml trees for the manifest
+    /// For each resource if there is a folder with the name of the project then that is the only xml tree that is copied over to the 
+    public function generateAssetXml(_projectXml:String) : Xml
+    {
+        var pathSplit = Const.CURRENTDIR.split("/");
+        var pathSplit = pathSplit[pathSplit.length - 2].split(".");
+        var projectName = pathSplit[0].toLowerCase();
+
+        var assetsXml = Xml.createElement("assets");
+
+        // Loop over every resource element
+        var gmx = Xml.parse(_projectXml).firstElement();
+        for (elt in gmx.elements())
+        {
+            // Ignore the config, help, tutorialstate and any empty elements
+            if (elt.nodeName != "Configs" && elt.nodeName != "help" && elt.nodeName != "TutorialState" && elt.count() != 0)
+            {
+                // Handle extensions and constats seperately from standard resources due to a difference in xml structure
+                if (elt.nodeName == "NewExtensions")
+                {
+                    // Loop over each extension element and look for one where the extension matches the project name
+                    // If one is found add it to the map
+                    // If not do nothing, eventually users will be able to specify a ext name or be able to add all
+                    var _elt = Xml.createElement("NewExtensions");
+                    for (ext in elt.elements())
+                    {
+                        var split   = ext.firstChild().nodeValue.split('\\');
+                        var extName = split[1];
+                        if (extName.toLowerCase() == projectName)
+                        {
+                            _elt.addChild(ext);
+                            assetsXml.addChild(_elt);
+                            break;
+                        }
+                    }
+                }
+                else if (elt.nodeName == "constants")
+                {
+                    // Add any constants which are not the two default ones GMS creates
+                    /*
+                    var _elt = Xml.createElement("constants");
+                    for (const in elt.elements())
+                    {
+                        if (const.get("name") != "GM_build_date" && const.get("name") != "GM_version")
+                        {
+                            _elt.addChild(const);
+                        }
+                    }
+
+                    // Only add constants to the map if any were found
+                    if (_elt.count() > 0)
+                    {
+                        assetsXml.addChild(_elt);
+                    }
+                    */
+                }
+                else
+                {
+                    // Loop over each of the inner elements looking for one with a name which matches the project name
+                    // If this is found use it for that resouces package files
+                    var nameMatchFound = false;
+                    for (innerElt in elt.elements())
+                    {
+                        if (innerElt.exists("name") && innerElt.get("name").toLowerCase() == projectName)
+                        {
+                            assetsXml.addChild(innerElt);
+                            nameMatchFound = true;
+                            break;
+                        }
+                    }
+
+                    // If a name matching element is not found take all the resources from the parent xml and add it to a new element for the package
+                    if (!nameMatchFound)
+                    {
+                        var _elt = Xml.createElement(elt.nodeName);
+                        _elt.set("name", projectName);
+                        for (innerElt in elt.elements())
+                        {
+                            _elt.addChild(innerElt);
+                        }
+
+                        assetsXml.addChild(_elt);
+                    }
+                }
+            }
+        }
+
+        return assetsXml;
+    }
+
+    public function createManifestXml(_pkgAssets:Xml, _pkgName:String, _pkgVersion:String, _pkgLicense:String, _pkgSite:String, _pkgDevelopers:Array<String>, _pkgDependencies:Array<String>) : Xml
+    {
+        var xmlRoot = Xml.createElement("root");
+
+        var xmlMetadata = Xml.createElement("metadata");
+        
+        var xmlPkgName    = Xml.createElement("name");
+        var xmlPkgVersion = Xml.createElement("version");
+        var xmlPkgLicense = Xml.createElement("license");
+        var xmlPkgSite    = Xml.createElement("site");
+        var xmlPkgDevs    = Xml.createElement("developers");
+        var xmlPkgDeps    = Xml.createElement("dependencies");
+
+        xmlPkgName   .addChild(Xml.createPCData(_pkgName));
+        xmlPkgVersion.addChild(Xml.createPCData(_pkgVersion));
+        xmlPkgLicense.addChild(Xml.createPCData(_pkgLicense));
+        xmlPkgSite   .addChild(Xml.createPCData(_pkgSite));
+
+        // Loop through the developers and add them to the related root xml element
+        if (_pkgDevelopers.length > 0)
+        {
+            for (dev in _pkgDevelopers)
+            {
+                var _xmlDev = Xml.createElement("developer");
+                _xmlDev.addChild(Xml.createPCData(dev.trim()));
+                xmlPkgDevs.addChild(_xmlDev);
+            }
+        }
+
+        // Loop through the dependencies and add them to the related root xml element
+        if (_pkgDevelopers.length > 0)
+        {
+            for (dep in _pkgDependencies)
+            {
+                var _xmlDep = Xml.createElement("dependency");
+                _xmlDep.addChild(Xml.createPCData(dep.trim()));
+                xmlPkgDeps.addChild(_xmlDep);
+            }
+        }
+
+        // Add all metadata sub elements to the base metadata tag
+        xmlMetadata.addChild(xmlPkgName);
+        xmlMetadata.addChild(xmlPkgVersion);
+        xmlMetadata.addChild(xmlPkgLicense);
+        xmlMetadata.addChild(xmlPkgSite);
+        xmlMetadata.addChild(xmlPkgDevs);
+        xmlMetadata.addChild(xmlPkgDeps);
+
+        xmlRoot.addChild(_pkgAssets);
+        xmlRoot.addChild(xmlMetadata);
+
+        return xmlRoot;
     }
 }
