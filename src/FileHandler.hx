@@ -126,35 +126,24 @@ class FileHandler
                 // Loop over every file in the archive, unzip it, and write it to the tmp folder based on its place in the archive
                 for (entry in zipData)
                 {
-                    var fileName  = entry.fileName;
-                    var structure = Path.removeTrailingSlashes(fileName).split("/");
-                    var basePath  = Const.getDataConfig() + "tmp";
+                    var filePath = entry.fileName;
+                    var basePath = Path.join([Const.getDataConfig(), "tmp"]);
+                    var relPath  = filePath.split("/");
+                    var fileName = relPath.pop();
 
-                    // Current item has no file extension so is assumed to be a folder
-                    if (Path.extension(structure[structure.length - 1]) == "")
-                    {
-                        // Create that directory based on its position in the archive
-                        var path = "";
-                        for (item in structure)
-                        {
-                            path += "/" + item;
-                            FileSystem.createDirectory(Path.join([basePath, path]));
-                        }
-                    }
-                    else
-                    {
-                        // Create the path structure to store the file in the correct folder
-                        var data = Reader.unzip(entry);
-                        var file = File.write(basePath + "/" + fileName, true);
-                        file.write(data);
-                        file.close();
-                    }
+                    // Create the folder to store the file in
+                    FileSystem.createDirectory(Path.join([basePath].concat(relPath)));
+
+                    var data = Reader.unzip(entry);
+                    var file = File.write(Path.join([basePath, filePath]), true);
+                    file.write(data);
+                    file.close();
                 }
                 zipBytes.close();
             }
             catch (e:Dynamic)
             {
-                trace("An error has occured extracting the package zip file", e);
+                Sys.println("An error has occured extracting the package zip file : " + e);
             }
         }
     }
