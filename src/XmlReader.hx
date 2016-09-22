@@ -33,16 +33,13 @@ class XmlReader
         var manifestParentXml:Map<String, Xml> = new Map<String, Xml>();
 
         // The first section in the manifest.xml is assets, loop over each one and add it to the list
-        var manifestAssets:Xml = Xml.parse(packageXml).firstElement();
+        var manifestAssets:Xml = Xml.parse(packageXml).firstElement().firstElement();
         var projectAssets :Xml = Xml.parse(projectXml).firstElement();
 
         // Loop over the XML and add all sub elements of the manifest into a map based on the node name ("scripts", "objects", etc)
         for (item in manifestAssets.elements())
         {
-            for (elt in item.elements())
-            {
-                manifestParentXml.set(item.nodeName, elt);
-            }
+            manifestParentXml.set(item.nodeName, item);
         }
 
         // Empty GMS Projects don"t include XML elements for all assets
@@ -50,7 +47,7 @@ class XmlReader
         projectAssets = createAllElements(projectAssets);
 
         // Loop over each of the sub elements in the gmx xml structure
-        // if the node name matches one of GMS" resources and that resource exists in the map
+        // if the node name matches one of GMS's resources and that resource exists in the map
         // add the xml in the map as a child of that xml element
         for (elt in projectAssets.elements())
         {
