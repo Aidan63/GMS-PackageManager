@@ -75,6 +75,6 @@ class CreatePackage
 
         fh.createPackageDirectory(pkgName, packageManifest, resourcesList, datafilesParentNodes);
 
-        Sys.println(pkgName + ".gmp created in " + Const.getDataConfig()+"packages");
+        Sys.println(pkgName + ".gmp created in " + Const.getDataConfig()+"/packages");
     }
 }
