@@ -52,9 +52,21 @@ class XmlReader
         for (elt in projectAssets.elements())
         {
             var node = elt.nodeName;
+            // if a matching entry is found in the map add it to the project xml
             if (manifestParentXml.exists(node))
             {
-                elt.addChild(manifestParentXml.get(node));
+                if (node == "NewExtensions" || node == "constants")
+                {
+                    var extXml = manifestParentXml.get(node);
+                    for (ext in extXml.elements())
+                    {
+                        elt.addChild(ext);
+                    }
+                }
+                else
+                {
+                    elt.addChild(manifestParentXml.get(node));
+                }
             }
 
             // Loop over any extensions and reasign the extension index to prevent any conflicts
@@ -67,6 +79,7 @@ class XmlReader
                     index ++;
                 }
             }
+
 
             // Set all datafile number attributes to the same which was assigned by GMS
             if (node == "datafiles")
@@ -466,7 +479,6 @@ class XmlReader
                 else if (elt.nodeName == "constants")
                 {
                     // Add any constants which are not the two default ones GMS creates
-                    /*
                     var _elt = Xml.createElement("constants");
                     for (const in elt.elements())
                     {
@@ -481,7 +493,6 @@ class XmlReader
                     {
                         assetsXml.addChild(_elt);
                     }
-                    */
                 }
                 else
                 {
