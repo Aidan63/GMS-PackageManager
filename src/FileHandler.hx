@@ -583,10 +583,11 @@ class FileHandler
      *
      * @param   _pkgName        The name of the package.
      * @param   _manifestXml    The xml structure to be saved into the manifest file.
-     * @param   _resource       List containing the names of all the resources which need to be copied from the project dir to the tmp dir
-     * @param   _datafile       List containing the names of all the datafiles which need to be copied from the project dir to the tmp dir
+     * @param   _resource       List containing the names of all the resources which need to be copied from the project dir to the tmp dir.
+     * @param   _datafile       List containing the names of all the datafiles which need to be copied from the project dir to the tmp dir.
+     * @param   _license        The license to add to the package.
      */
-    public function createPackageDirectory(_pkgName:String, _manifestXml:Xml, _resources:List<String>, _datafiles:List<String>) : Void
+    public function createPackageDirectory(_pkgName:String, _manifestXml:Xml, _resources:List<String>, _datafiles:List<String>, _license:String) : Void
     {
         // Create a folder in the tmp dir to store the package content
         var tmpPkgDirectory = Path.join([Const.getDataConfig(), "tmp", _pkgName]);
@@ -642,6 +643,15 @@ class FileHandler
             searchAndCopyDatafile(_df, Path.join([Const.CURRENTDIR, "datafiles"]));
         }
 
+        // Write the license to the directory
+        if (_license != "")
+        {
+            var licenseDir:String = Path.join([Const.getDataConfig(), "tmp", _pkgName, "package"]);
+            FileSystem.createDirectory(licenseDir);
+            File.saveContent(Path.join([licenseDir, _pkgName + " license.txt"]), _license);
+        }
+
+        // Create an archive of the directory
         zipPackageDirectory(tmpPkgDirectory, _pkgName);
 
         // everything has been done, wipe the tmp dir

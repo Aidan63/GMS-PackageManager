@@ -44,4 +44,32 @@ class WebDownloader
 
         return retData;
     }
+
+    /**
+     * Attempts to download a license file and returns a string of the content.
+     * Returns a string of the file content.
+     *
+     * @param   _licenseUrl     The url to try and get the license file from.  
+     */
+    public function downloadLicense(_licenseUrl:String) : String
+    {
+        var req = new Http(_licenseUrl);
+        var retData = "";
+
+        req.onData = function (data)
+        {
+            retData = data;
+        }
+
+        req.onError = function (error)
+        {
+            Sys.println("Error trying to download the license file from " + _licenseUrl);
+            Sys.println("License file will not be added to the package");
+            Sys.println(error);
+        }
+
+        req.request(false);
+
+        return retData;
+    }
 }

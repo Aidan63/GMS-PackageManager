@@ -528,8 +528,22 @@ class XmlReader
         return assetsXml;
     }
 
+    /**
+     * Creates a package manifest xml structure from a GMS dir xml structure and the package data collected from the user
+     *
+     * @param   _pkgAssets          The XML structure containing all of the GMS resources
+     * @param   _pkgName            Holds the package name
+     * @param   _pkgVersion         Holds the package version
+     * @param   _pkgLicense         Holds the package license
+     * @param   _pkgSite            Holds the package website url
+     * @param   _pkgDevelopers      Array containing the developers of the package
+     * @param   _pkgDependencies    Array containing the dependencies of the package
+     *
+     * @return                      Xml structure of the completed package manifest
+     */
     public function createManifestXml(_pkgAssets:Xml, _pkgName:String, _pkgVersion:String, _pkgLicense:String, _pkgSite:String, _pkgDevelopers:Array<String>, _pkgDependencies:Array<String>) : Xml
     {
+        // Creates the room element and the metadata elements to store the package info
         var xmlRoot = Xml.createElement("root");
 
         var xmlMetadata = Xml.createElement("metadata");
@@ -541,6 +555,7 @@ class XmlReader
         var xmlPkgDevs    = Xml.createElement("developers");
         var xmlPkgDeps    = Xml.createElement("dependencies");
 
+        // PCData holds the node value for the metadata elements
         xmlPkgName   .addChild(Xml.createPCData(_pkgName));
         xmlPkgVersion.addChild(Xml.createPCData(_pkgVersion));
         xmlPkgLicense.addChild(Xml.createPCData(_pkgLicense));
