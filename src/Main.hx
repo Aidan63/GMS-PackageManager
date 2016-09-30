@@ -35,9 +35,7 @@ class Main
                                     
                 case "add-repository":
                     cliArgs.remove("add-repository");
-                    
-                    var ar:AddRepo = new AddRepo();
-                    ar.addRepository(cliArgs[0]);
+                    var ar:AddRepo = new AddRepo(cliArgs);
                     
                 case "remove-repository":
                     cliArgs.remove("remove-repository");

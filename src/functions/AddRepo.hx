@@ -6,9 +6,16 @@ import src.XmlReader;
 
 class AddRepo
 {
-    public function new()
+    public function new(_args:Array<String>)
     {
-        //
+        if (_args.length > 0)
+        {
+            addRepository(_args[0]);
+        }
+        else
+        {
+            printHelp();
+        }
     }
 
     /**
@@ -45,5 +52,15 @@ class AddRepo
             Sys.println("Repository is already added");
             Sys.exit(0);
         }
+    }
+
+    /**
+     * Prints help information if no arguments were provided.
+     */
+    public function printHelp() : Void
+    {
+        Sys.println("You must specify a repository URL to add when using the 'add-repository' command.");
+        Sys.println("");
+        Sys.println("   Usage: gmr add-repository $repoURL");
     }
 }
