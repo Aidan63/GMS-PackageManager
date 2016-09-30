@@ -11,6 +11,11 @@ class AddRepo
         //
     }
 
+    /**
+     * Adds the provided repo to the repositories.list file if it's not already added and attempts to download the manifest file to print info.
+     *
+     * @param   _repo   The repository URL to add.
+     */
     public function addRepository(_repo:String) : Void
     {
         var fh    = new FileHandler();
@@ -20,7 +25,7 @@ class AddRepo
         if (!fh.repoAlreadyAdded(_repo))
         {
             // Get the repo xml file 
-            var repoXml = webDl.getRepository(_repo);
+            var repoXml:String = webDl.getRepository(_repo);
 
             if (repoXml != "")
             {
@@ -28,8 +33,9 @@ class AddRepo
                 fh.addRepository(_repo);
 
                 // Return a map with info about the repo
-                var results = xmlR.readRepoXml(repoXml);
+                var results:Map<String, String> = xmlR.readRepoXml(repoXml);
 
+                // Print out some info about the added repo
                 Sys.println(results.get("name") + " successfully added");
                 Sys.println("Owned by " + results.get("owner") + ":" + results.get("email"));
             }

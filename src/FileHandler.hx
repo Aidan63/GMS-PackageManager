@@ -449,11 +449,15 @@ class FileHandler
 
     // =============== Repository Functions =============== //
 
-    /// Adds a url to the repositories.list file
+    /**
+     * Appends the provided string to the end of the repositories.list file.
+     *
+     * @param   _repo   The URL to append to the file.
+     */
     public function addRepository(_repo:String) : Void
     {
-        var repoPath = Path.join([Const.getDataConfig(), "repositories.list"]);
-        var file     = File.append(repoPath, false);
+        var repoPath:String            = Path.join([Const.getDataConfig(), "repositories.list"]);
+        var file    :sys.io.FileOutput = File.append(repoPath, false);
         file.writeString(_repo + "\n");
         file.close();
     }
@@ -497,11 +501,16 @@ class FileHandler
         }
     }
 
-    /// Returns if the repo has already been added to the repositories.list file
+    /**
+     * Loops over every line in the repositories.list file looking for a line which matches the argument provided.
+     *
+     * @param   _repo   The Repository URL to loop for.
+     * @return          Returns true / false if the repo url was found.
+     */
     public function repoAlreadyAdded(_repo) : Bool
     {
-        var repoPath = Path.join([Const.getDataConfig(), "repositories.list"]);
-        var file     = File.read(repoPath, false);
+        var repoPath:String           = Path.join([Const.getDataConfig(), "repositories.list"]);
+        var file    :sys.io.FileInput = File.read(repoPath, false);
 
         // Loop over each line looking for one which matches the argument
         try

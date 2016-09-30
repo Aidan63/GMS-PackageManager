@@ -400,16 +400,23 @@ class XmlReader
         }
     }
 
-    /// Returns a map with data about the repo which is gathered from the xml file
+    /**
+     * Returns a map of data about the repository from the repo manifest XML.
+     * Contains the repo name, owner, and email address.
+     *
+     * @param   _repoXml    The XML String of the repo manifest.
+     * @return              Map containing data about the repository.
+     */
     public function readRepoXml(_repoXml:String) : Map<String, String>
     {
-        var xml  = Xml.parse(_repoXml);
-        var data = new Map<String, String>();
+        var xml:Xml = Xml.parse(_repoXml);
+        var data    = new Map<String, String>();
 
         for (elt in xml.elements())
         {
             if (elt.nodeName == "repository")
             {
+                // Sub nodes contain info such as the repo name, owner, contact email
                 for (child in elt.elements())
                 {
                     data.set(child.nodeName, child.firstChild().nodeValue);
