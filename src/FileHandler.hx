@@ -522,11 +522,15 @@ class FileHandler
         return false;
     }
 
-    /// Returns a list of every repo url from repositories.list
+    /**
+     * Open the repositories.list file and add every line to a list and then return that list
+     *
+     * @return  List of each line from the repositories.list file
+     */
     public function getReposList() : List<String>
     {
         var list = new List<String>();
-        var file = File.read(Path.join([Const.getDataConfig(), "repositories.list"]));
+        var file:sys.io.FileInput = File.read(Path.join([Const.getDataConfig(), "repositories.list"]));
 
         // Loop over every line in the file and add it to a list
         try
@@ -560,20 +564,22 @@ class FileHandler
         return list;
     }
 
-    /// Adds package names and their url to the packages.list file and returns the number of packages added
-    public function addPackagesToList(_list:List<Array<String>>, _pkgNumb:Int) : Int
+    /**
+     * For each array in the provided list add the package into the package list file.
+     *
+     * @param   _list   List of arrays where each array contains the name and URL of a package.
+     */
+    public function addPackagesToList(_list:List<Array<String>>) : Void
     {
-        var file = File.write(Path.join([Const.getDataConfig(), "packages.list"]));
+        var file:sys.io.FileOutput = File.write(Path.join([Const.getDataConfig(), "packages.list"]));
 
         // Write the package name and the url for each array to the packages.list file
         for (array in _list)
         {
             file.writeString(array[0] + "," + array[1] + "\n");
-            _pkgNumb ++;
         }
 
         file.close();
-        return _pkgNumb;
     }
 
     // =============== Create Pkg Functions =============== //

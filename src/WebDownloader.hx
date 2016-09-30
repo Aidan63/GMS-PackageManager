@@ -25,7 +25,12 @@ class WebDownloader
         req.request(false);
     }
 
-    /// Returns the xml of the repo or an empty string if it couldn't be found
+    /**
+     * Attempt to download the manifest file from the url and return the data.
+     *
+     * @param   _repoURl    The URL to attempt to download the manifest from.
+     * @return              The downloaded manifest or an empty string.
+     */
     public function getRepository(_repoURl:String) : String
     {
         var req = new Http(_repoURl);

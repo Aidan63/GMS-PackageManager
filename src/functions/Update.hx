@@ -10,6 +10,9 @@ class Update
     {
     }
 
+    /**
+     * For each url in the repositories.list file attempt to download the manifest and for each package inside add it to the packages.list file
+     */
     public function updatePackages() : Void
     {
         var fh    = new FileHandler();
@@ -17,17 +20,19 @@ class Update
         var xmlR  = new XmlReader();
 
         // Get a list all repos
-        var repoList = fh.getReposList();
-        var pkgNumb  = 0;
+        var repoList:List<String> = fh.getReposList();
+        var pkgNumb = 0;
         for (repo in repoList)
         {
             // Download each repos xml
-            var xml  = webDl.getRepository(repo);
+            var xml:String = webDl.getRepository(repo);
             if (xml != "")
             {
                 Sys.println(repo + " reached");
-                var list = xmlR.readRepoPackages(xml);
-                pkgNumb += fh.addPackagesToList(list, pkgNumb);
+
+                var list:List<Array<String>> = xmlR.readRepoPackages(xml);
+                fh.addPackagesToList(list);
+                pkgNumb += list.length;
             }
         }
 

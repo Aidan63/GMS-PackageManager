@@ -420,12 +420,18 @@ class XmlReader
         return data;
     }
 
-    /// Returns a list of every package name and url from a repo xml
+    /**
+     * Parses the manifest XML and for each package element add information about it into a list of arrays. 
+     *
+     * @param   _repoXml    The string representation of the manifest file.
+     * @return              Each array within the list represents one package. Position 0 is the package name and position 1 is the URL.
+     */
     public function readRepoPackages(_repoXml:String) : List<Array<String>>
     {
-        var xml = Xml.parse(_repoXml);
-        var data = new List<Array<String>>();
+        var xml:Xml = Xml.parse(_repoXml);
+        var data    = new List<Array<String>>();
 
+        // Search for the 'packages' element which contains all of the package sub elements
         for (elt in xml.elements())
         {
             if (elt.nodeName == "packages")
