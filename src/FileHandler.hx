@@ -462,7 +462,11 @@ class FileHandler
         file.close();
     }
 
-    /// Removes a url from the repositories.list file
+    /**
+     * Removes the provided repo from the repositories.list file if found.
+     *
+     * @param   _repo   The URL string to look for in the file.
+     */
     public function removeRepository(_repo:String) : Void
     {
         var repoPath = Path.join([Const.getDataConfig(), "repositories.list"]);
