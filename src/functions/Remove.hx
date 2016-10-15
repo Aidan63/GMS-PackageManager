@@ -11,10 +11,15 @@ class Remove
     {
     }
     
+    /**
+     * Removes the provided packages from the project.
+     *
+     * @param   _packages   Array containing the packages to remove from the project.
+     */
     public function removePackages(_packages:Array<String>) : Void
     {
-        var fh   :FileHandler = new FileHandler();
-        var gmxR :XmlReader   = new XmlReader();
+        var fh   = new FileHandler();
+        var gmxR = new XmlReader();
 
         // If a package is not installed stop the program
         for (_pkg in _packages)
@@ -30,8 +35,8 @@ class Remove
         // Safe removal method (just have to cleanup empty xml tags)
         for (_pkg in _packages)
         {
-            var manifest   = fh.getInstalledManifest(_pkg);
-            var projectGmx = fh.getGmx();
+            var manifest  :String = fh.getInstalledManifest(_pkg);
+            var projectGmx:String = fh.getGmx();
 
             // returns lists containing all the resouces to be removed from the project
             var resourcesList       :List<String> = gmxR.getPackageResources(manifest);
@@ -39,13 +44,13 @@ class Remove
             var packageConstants    :List<String> = gmxR.getPackageConstants(manifest);
 
             // Remove the package xml from the project xml and returns a string for writing to a file
-            projectGmx = gmxR.removePackageXml(projectGmx, resourcesList, datafilesParentNodes, packageConstants);
+            projectGmx:String = gmxR.removePackageXml(projectGmx, resourcesList, datafilesParentNodes, packageConstants);
 
             // Remove any package files from the project directory (optional eventually)
             fh.removePackageFiles(resourcesList, datafilesParentNodes);
 
             // Cleanup the xml by spliting it into an array, removing any white space, and checking and removing empty tags
-            projectGmx = removeEmptyXml(projectGmx);
+            projectGmx:String = removeEmptyXml(projectGmx);
             
             // Write the xml to the .project.gmx then remove the package manifest from the project 'packages' folder
             fh.writeNewXml(projectGmx);
@@ -55,7 +60,13 @@ class Remove
         }
     }
 
-    /// Split the xml into an array and loop over it checking for empty tags of all the resource types
+    /**
+     * Splits the provided Xml string into each line and loops over them searching and removing any empty resource tags.
+     * If this stage does not catch all empty tags GMS will throw errors when loading the project Xml.
+     *
+     * @param   _xml    The Xml string to split and search.
+     * @return          Xml string with any emprty tags removed.
+     */
     public function removeEmptyXml(_xml:String) : String
     {
         var tags  = [ "<sound/>", "<sprite/>", "<background/>", "<path/>", "<font/>", "<script/>", "<object/>", "<room/>" ];

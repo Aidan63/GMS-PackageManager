@@ -205,11 +205,17 @@ class XmlReader
         return _assets;
     }
 
-    /// Returns a list with the location of all the resources in the package (except for datafiles)
+    /**
+     * Returns a list with the location of all the standard resources in the package.
+     * Datafiles and constants are not included.
+     *
+     * @param   _pkgManifest    String containing the XML manifest of the package.
+     * @return                  
+     */
     public function getPackageResources(_pkgManifest:String) : List<String>
     {
-        var assetsList = new List<String>();
-        var assetsXml  = Xml.parse(_pkgManifest).firstElement().firstElement();
+        var assetsList:List<String>;
+        var assetsXml :Xml = Xml.parse(_pkgManifest).firstElement().firstElement();
 
         // Handle special case resources and remove them to make the normal ones easier to parse
         for (elt in assetsXml.elements())
@@ -232,17 +238,27 @@ class XmlReader
         }
 
         // Get a list of all the standard resources which can be removed from the project xml and return it
-        assetsList = addElementAssets(assetsXml, assetsList);
+        assetsList:Array<String> = addElementAssets(assetsXml);
 
         return assetsList;
     }
-
-    /// Returns a list of all the parent node names for datafiles
+    
+    /**
+     * Returns a list of all the datafile parent nodes.
+     *
+     * @param   _pkgManifest    String containing the Xml to search for the datafiles.
+     * @return                  Returns a list containing the name of the datafile parent node.
+     */
     public function getPackageDatafiles(_pkgManifest:String) : List<String>
     {
         var parentNodes = new List<String>();
         var assetsXml   = Xml.parse(_pkgManifest).firstElement().firstElement();
 
+        /**
+         * Recursivly search the Xml structure for a datafile parent node.
+         *
+         * @param   _xml    The Xml strucute to search.
+         */
         function datafileSearch(_xml:Xml) : Void
         {
             for (elt in _xml.elements())
@@ -270,7 +286,12 @@ class XmlReader
         return parentNodes;
     }
 
-    /// Returns a list of all the constant name attributes in the package manifest
+    /**
+     * Returns a list of all the constant name attributes in the package manifest.
+     *
+     * @param   _pkgManifest    The string of the Xml to get constants from
+     * @return                  List of the constants names.
+     */
     public function getPackageConstants(_pkgManifest:String) : List<String>
     {
         var assetsXml = Xml.parse(_pkgManifest).firstElement();
@@ -293,32 +314,81 @@ class XmlReader
         return constList;
     }
 
-    /// Recusivly loop over the xml structure adding any child nodeValues into a list then returning that list
-    /// If the current node is an element call the function again passing that element through
-    public function addElementAssets(_xml:Xml, _list:List<String>) : List<String>
+    /**
+     * Recusivly loop over the xml structure adding any child nodeValues into a list then returning that list.
+     * If the current node is an element call the function again passing that element through.
+     *
+     * @param   _xml    The xml structure to loop over.
+     * @return          List of every standard asset in the package.
+     */
+    public function addElementAssets(_xml:Xml) : List<String>
     {
+        var list = new List<String>();
         for (elt in _xml.elements())
         {
             if (elt.exists("name"))
             {
-                _list = addElementAssets(elt, _list);
+                list = addElementAssets(elt, _list);
             }
             else
             {
                 for (_child in elt)
                 {
-                    _list.add(_child.nodeValue);
+                    list.add(_child.nodeValue);
                 }
             }
         }
 
-        return _list;
+        return list;
     }
 
-    /// Removes the child nodes found in the list from the project xml 
+    /// Removes the child nodes found in the list from the project xml
+    /**
+     * Removes nodes from the project Xml which are also found in the lists of resources to be removed.
+     *
+     * @param   _gmx            The string of the project gmx Xml.
+     * @param   _resourceList   The list containing all of the standard resources to be removed.
+     * @param   _datafilesList  The list containing all of the datafiles to be removed.
+     * @param   _constantsList  The list containing all of the constants to be removed.
+     *
+     * @return          Formatted Xml string of the project gmx file with the resources removed.
+     */
     public function removePackageXml(_gmx:String, _resourceList:List<String>, _datafilesList:List<String>, _constantsList:List<String>) : String
     {
-        var gmx = Xml.parse(_gmx).firstElement();
+        var gmx:Xml = Xml.parse(_gmx).firstElement();
+
+        /**
+         * Recursivly search through the provided xml removing any matching elements from the list.
+         *
+         * @param   _xml            The Xml structure to search through.
+         * @param   _resourceList   The list of resources to look for.
+         */
+        function searchXmlTree(_xml:Xml, _resourceList:List<String>) : Void
+        {
+            for (elt in _xml.elements())
+            {
+                // Having the attribute 'name' means it is a folder not a end element
+                // So we call the function again and search that sub folder
+                if (elt.exists("name"))
+                {
+                    searchXmlTree(elt, _resourceList);
+                }
+                else
+                {
+                    for (child in elt)
+                    {
+                        // Search for matching items in the list
+                        for (item in _resourceList)
+                        {
+                            if (item == child.nodeValue)
+                            {
+                                elt.removeChild(elt.firstChild());
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         // Safe removal for standard resources
         // Loops over each child node checking against the list and removing it if a match is found
@@ -379,35 +449,6 @@ class XmlReader
 
         // Uses the xmlTools printer to return a 2 space indented string of the xml (same which GMS produces, just to be consistant)
         return XmlPrinter.print(gmx, false, SPACES(2));
-    }
-
-    /// Recursivly search through the provided xml for any matching elements from the list
-    /// Matching xml is then removed
-    public function searchXmlTree(_xml:Xml, _resourceList:List<String>) : Void
-    {
-        for (elt in _xml.elements())
-        {
-            // Having the attribute 'name' means it is a folder not a end element
-            // So we call the function again and search that sub folder
-            if (elt.exists("name"))
-            {
-                searchXmlTree(elt, _resourceList);
-            }
-            else
-            {
-                for (child in elt)
-                {
-                    // Search for matching items in the list
-                    for (item in _resourceList)
-                    {
-                        if (item == child.nodeValue)
-                        {
-                            elt.removeChild(elt.firstChild());
-                        }
-                    }
-                }
-            }
-        }
     }
 
     /**

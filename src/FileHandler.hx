@@ -254,7 +254,11 @@ class FileHandler
         return FileSystem.exists(Path.join([Const.CURRENTDIR, "packages", _pkg + ".xml"]));
     }
 
-    /// Returns the xml manifest of the package from the packages folder in the gmx directory  
+    /**
+     * Returns the xml manifest of the projects package from the packages directory.
+     *
+     * @param   _pkg    The package to get the manifest for.
+     */
     public function getInstalledManifest(_pkg:String) : String
     {
         return File.getContent(Path.join([Const.CURRENTDIR, "packages", _pkg+".xml"]));
@@ -362,8 +366,12 @@ class FileHandler
     }
 
     // =============== Remove Functions =============== //
-
-    /// Removes the package manifest file of the provided name from the current gmx project directory
+    
+    /**
+     * Removes the package manifest file of the provided name from the projects package folder.
+     *
+     * @param   _pkg    The package name of the manifest file to search for.
+     */
     public function removeLocalManifest(_pkg:String) : Void
     {
         FileSystem.deleteFile(Path.join([Const.CURRENTDIR, "packages", _pkg+".xml"]));
@@ -371,6 +379,12 @@ class FileHandler
 
     /// Removes all the general resource files from the xml
     /// TODO : A fair bit of this could be cleaned up
+    /**
+     * Removes all resource files from the project directory. (This could probably be cleaned up a fair bit)
+     *
+     * @param   _resourcesList      List of standard resources to delete.
+     * @param   _datafilesParents   List of datafiles to delete.
+     */
     public function removePackageFiles(_resourcesList:List<String>, _datafilesParents:List<String>) : Void
     {
         for (item in _resourcesList)
