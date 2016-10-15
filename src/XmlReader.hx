@@ -214,7 +214,7 @@ class XmlReader
      */
     public function getPackageResources(_pkgManifest:String) : List<String>
     {
-        var assetsList:List<String>;
+        var assetsList:List<String> = new List<String>();
         var assetsXml :Xml = Xml.parse(_pkgManifest).firstElement().firstElement();
 
         // Handle special case resources and remove them to make the normal ones easier to parse
@@ -238,7 +238,7 @@ class XmlReader
         }
 
         // Get a list of all the standard resources which can be removed from the project xml and return it
-        assetsList:Array<String> = addElementAssets(assetsXml);
+        assetsList = addElementAssets(assetsXml, assetsList);
 
         return assetsList;
     }
@@ -321,25 +321,24 @@ class XmlReader
      * @param   _xml    The xml structure to loop over.
      * @return          List of every standard asset in the package.
      */
-    public function addElementAssets(_xml:Xml) : List<String>
+    public function addElementAssets(_xml:Xml, _list:List<String>) : List<String>
     {
-        var list = new List<String>();
         for (elt in _xml.elements())
         {
             if (elt.exists("name"))
             {
-                list = addElementAssets(elt, _list);
+                _list = addElementAssets(elt, _list);
             }
             else
             {
                 for (_child in elt)
                 {
-                    list.add(_child.nodeValue);
+                    _list.add(_child.nodeValue);
                 }
             }
         }
-
-        return list;
+        
+        return _list;
     }
 
     /// Removes the child nodes found in the list from the project xml
