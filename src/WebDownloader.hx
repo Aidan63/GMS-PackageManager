@@ -9,9 +9,15 @@ class WebDownloader
     {
     }
     
+    /**
+     * Attempts to download the package from the provided URL.
+     *
+     * @param   _packageUrl     The URL to download the package from.
+     * @param   _packageName    The name of the package to pass download.
+     */
     public function downloadPackages(_packageUrl:String, _packageName:String) : Void
     {
-        var fh:FileHandler = new FileHandler();
+        var fh  = new FileHandler();
         var req = new Http(_packageUrl);
         
         req.onData = function (data) {

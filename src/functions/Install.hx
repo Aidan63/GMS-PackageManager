@@ -1,10 +1,10 @@
 package src.functions;
 
+import haxe.io.Path;
 import src.WebDownloader;
 import src.FileHandler;
 import src.XmlReader;
 import src.Const;
-import haxe.io.Path;
 
 class Install
 {   
@@ -22,12 +22,16 @@ class Install
         }
     }
 
-    /// Attempt to install the packages passed to it in the array
+    /**
+     * Checks if the packages provided are already downloaded, downloads them if need be and then installs them.
+     *
+     * @param   _packages   Array containing all of the packages to try and install.
+     */
     public function installPackages(_packages:Array<String>) : Void
     {
-        var fh   :FileHandler   = new FileHandler  ();
-        var webDl:WebDownloader = new WebDownloader();
-        var gmxR :XmlReader     = new XmlReader    ();
+        var fh    = new FileHandler  ();
+        var webDl = new WebDownloader();
+        var gmxR  = new XmlReader    ();
 
         var pkgsToInstall = new List<String>();
 
@@ -85,11 +89,11 @@ class Install
             {
                 // Extract the package to the tmp folder and find the gmx file in the current directory
                 fh.extractPackage(pkg);
-                var projectGmx = fh.getGmx();
-                var packageXml = fh.getPackageManifest(pkg);
+                var projectGmx:String = fh.getGmx();
+                var packageXml:String = fh.getPackageManifest(pkg);
 
                 // Merge the manfiest file into the project gmx and then move the asset files into the appropriate folders 
-                var newProjectGmx = gmxR.installPackageXml(projectGmx, packageXml);
+                var newProjectGmx:String = gmxR.installPackageXml(projectGmx, packageXml);
                 fh.moveAssetFiles(pkg);
                 fh.moveManifestXml(pkg);
 

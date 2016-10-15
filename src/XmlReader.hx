@@ -26,15 +26,22 @@ class XmlReader
         }
     }
 
-    /// Add elements from the manifest.xml to the xml structure of the .project.gmx file
-    public function installPackageXml(projectXml:String, packageXml:String) : String
+    /**
+     * Adds elements from the manifest assets parent into the .project.gmx assets xml.
+     *
+     * @param   _projectXml     The string containing the XML of the project gmx.
+     * @param   _packageXml     The string containing the manifest XML of the package.
+     *
+     * @return      String containing the xml of the project .gmx with the package xml inserted.
+     */
+    public function installPackageXml(_projectXml:String, _packageXml:String) : String
     {
         // List stores all of the xml sections to add to the gmx project
-        var manifestParentXml:Map<String, Xml> = new Map<String, Xml>();
+        var manifestParentXml = new Map<String, Xml>();
 
         // The first section in the manifest.xml is assets, loop over each one and add it to the list
-        var manifestAssets:Xml = Xml.parse(packageXml).firstElement().firstElement();
-        var projectAssets :Xml = Xml.parse(projectXml).firstElement();
+        var manifestAssets:Xml = Xml.parse(_packageXml).firstElement().firstElement();
+        var projectAssets :Xml = Xml.parse(_projectXml).firstElement();
 
         // Loop over the XML and add all sub elements of the manifest into a map based on the node name ("scripts", "objects", etc)
         for (item in manifestAssets.elements())
@@ -51,7 +58,7 @@ class XmlReader
         // add the xml in the map as a child of that xml element
         for (elt in projectAssets.elements())
         {
-            var node = elt.nodeName;
+            var node:String = elt.nodeName;
             // if a matching entry is found in the map add it to the project xml
             if (manifestParentXml.exists(node))
             {
@@ -80,7 +87,6 @@ class XmlReader
                 }
             }
 
-
             // Set all datafile number attributes to the same which was assigned by GMS
             if (node == "datafiles")
             {
@@ -99,10 +105,14 @@ class XmlReader
         // Uses the xmlTools printer to return a 2 space indented string of the xml (same which GMS produces, just to be consistant)
         return XmlPrinter.print(projectAssets, false, SPACES(2));
     }
-
-    /// GMS does not add elements for all resource in empty projects
-    /// Add any missing resource elements incase the package needs them
-    public function createAllElements(assets:Xml) : Xml
+    
+    /**
+     * GMS does not add elements for every resource by default, correct that by adding any missing resource elements to the .gmx xml.
+     *
+     * @param   _assets     The .gmx xml to check for any missing resource elements.
+     * @return              Project xml structure with all resource elements.
+     */
+    public function createAllElements(_assets:Xml) : Xml
     {
         // datafiles
         // fonts
@@ -120,7 +130,7 @@ class XmlReader
         var existsAudiogroup = false;
         var existsScripts    = false;
 
-        for (elt in assets.elements())
+        for (elt in _assets.elements())
         {
             switch (elt.nodeName)
             {
@@ -153,46 +163,46 @@ class XmlReader
             var xml = Xml.createElement("datafiles");
             xml.set("name", "datafiles");
             xml.set("number", "0");
-            assets.addChild(xml);
+            _assets.addChild(xml);
         }
         if (existsFonts == false)
         {
             var xml = Xml.createElement("fonts");
             xml.set("name", "fonts");
-            assets.addChild(xml);
+            _assets.addChild(xml);
         }
         if (existsScripts == false)
         {
             var xml = Xml.createElement("scripts");
             xml.set("name", "scripts");
-            assets.addChild(xml);
+            _assets.addChild(xml);
         }
         if (existsObjects == false)
         {
             var xml = Xml.createElement("objects");
             xml.set("name", "objects");
-            assets.addChild(xml);
+            _assets.addChild(xml);
         }
         if (existsRooms == false)
         {
             var xml = Xml.createElement("rooms");
             xml.set("name", "rooms");
-            assets.addChild(xml);
+            _assets.addChild(xml);
         }
         if (existsConstants == false)
         {
             var xml = Xml.createElement("constants");
             xml.set("number", "0");
-            assets.addChild(xml);
+            _assets.addChild(xml);
         }
         if (existsAudiogroup == false)
         {
             var xml = Xml.createElement("audiogroups");
             xml.set("name", "audiogroups");
-            assets.addChild(xml);
+            _assets.addChild(xml);
         }
 
-        return assets;
+        return _assets;
     }
 
     /// Returns a list with the location of all the resources in the package (except for datafiles)

@@ -21,7 +21,12 @@ class FileHandler
 
     // =============== General Functions =============== //
 
-    // Removes all files and folders within the folder provided in the argument
+    /**
+     * recursivly removes all of the files and sub directories within the provided directory.
+     * Does not delete the provided base directory.
+     *
+     * @param   _path   The directory to recursivly remove.
+     */
     public function removeDirRecursive(_path:String) : Void
     {
         if (FileSystem.exists(_path) && FileSystem.isDirectory(_path))
@@ -41,7 +46,12 @@ class FileHandler
         }
     }
 
-    // Returns the url for the package provided
+    /**
+     * Searches for the package provided in the packages.list file and returns the URL for the package if found.
+     *
+     * @param   _package    The package to search for.
+     * @return              The URL of the package or null.
+     */
     public function findURL(_package:String) : String
     {
         if (FileSystem.exists(Const.getDataConfig() + "packages.list"))
@@ -77,19 +87,23 @@ class FileHandler
         }
     }
 
-    /// Returns the GMX in the current directory
+    /**
+     * Returns the name of the GMX in the project directory.
+     *
+     * @return      The name of the GMX. 
+     */
     public function getGmx() : String
     {
         // Split the path by the '/' and try to split the basename by a period
         // If the split was successful then we assume the current directory is a GMS .gmx
-        var split  = Path.removeTrailingSlashes(Const.CURRENTDIR).split("/");
-        var topDir = split[split.length - 1].split(".");
+        var split :Array<String> = Path.removeTrailingSlashes(Const.CURRENTDIR).split("/");
+        var topDir:Array<String> = split[split.length - 1].split(".");
 
         // Using that info we can take the name part before the .gmx and add .project.gmx to it to get the project xml file name
         if (topDir.length >= 2)
         {
-            var gmxFile = topDir[0] + ".project.gmx";
-            var path = Path.join([Const.CURRENTDIR, gmxFile]);
+            var gmxFile:String = topDir[0] + ".project.gmx";
+            var path   :String = Path.join([Const.CURRENTDIR, gmxFile]);
 
             if (FileSystem.exists(path))
             {
@@ -112,16 +126,20 @@ class FileHandler
         }
     }
 
-    // Extracts the provided packges zip file into the tmp folder
+    /**
+     * Extracts the package archive into the tmp directory.
+     *
+     * @param   _package    The name of the package to extract.
+     */
     public function extractPackage(_package:String) : Void
     {
-        var zipPath = Const.getDataPack() + _package + ".gmp";
+        var zipPath:String = Const.getDataPack() + _package + ".gmp";
         if (FileSystem.exists(zipPath))
         {
             try
             {
-                var zipBytes = File.read(zipPath);
-                var zipData = Reader.readZip(zipBytes);
+                var zipBytes:sys.io.FileInput     = File.read(zipPath);
+                var zipData :List<haxe.zip.Entry> = Reader.readZip(zipBytes);
                 
                 // Loop over every file in the archive, unzip it, and write it to the tmp folder based on its place in the archive
                 for (entry in zipData)
@@ -134,8 +152,8 @@ class FileHandler
                     // Create the folder to store the file in
                     FileSystem.createDirectory(Path.join([basePath].concat(relPath)));
 
-                    var data = Reader.unzip(entry);
-                    var file = File.write(Path.join([basePath, filePath]), true);
+                    var data:Null<haxe.io.Bytes> = Reader.unzip(entry);
+                    var file:sys.io.FileOutput   = File.write(Path.join([basePath, filePath]), true);
                     file.write(data);
                     file.close();
                 }
@@ -148,10 +166,15 @@ class FileHandler
         }
     }
 
-    /// Returns a string containing the package manifest xml
+    /**
+     * Returns the content of the package manifest file.
+     *
+     * @param   _package    The package to get the manifest of.
+     * @return              String containing the package manifest.
+     */
     public function getPackageManifest(_package:String) : String
     {
-        var path = Path.join([Const.getDataConfig(), "tmp", _package, "manifest.xml"]);
+        var path:String = Path.join([Const.getDataConfig(), "tmp", _package, "manifest.xml"]);
         if (FileSystem.exists(path))
         {
             return File.getContent(path);
@@ -167,14 +190,18 @@ class FileHandler
         }
     }
 
-    /// Copy the entire contents of one directory into another
+    /**
+     * Recursivly copies the content of one folder into another one.
+     *
+     * @param _sourceDir        The source directory to copy from.
+     * @param _destinationDir   The destination directory to copy into.
+     */
     public function recursiveFsCopy(_sourceDir:String, _destinationDir:String) : Void
     {
-        // Start to recursivly copy files and create folders
         for (item in FileSystem.readDirectory(_sourceDir))
         {
-            var pathSrc  = Path.join([_sourceDir, item]);
-            var pathDest = Path.join([_destinationDir, item]);
+            var pathSrc :String = Path.join([_sourceDir, item]);
+            var pathDest:String = Path.join([_destinationDir, item]);
 
             if (FileSystem.isDirectory(pathSrc))
             {
@@ -192,16 +219,20 @@ class FileHandler
         }
     }
 
-    /// Copy the current .project.gmx to a backup file and write the new xml to the current .project.gmx file
+    /**
+     * Copy the current .project.gmx to a backup file and write the new xml to the current .project.gmx file.
+     *
+     * @param   _projectXml     The XML string to write to the project gmx file.
+     */
     public function writeNewXml(_projectXml:String) : Void
     {
-        var split  = Path.removeTrailingSlashes(Const.CURRENTDIR).split("/");
-        var topDir = split[split.length - 1].split(".");
+        var split :Array<String> = Path.removeTrailingSlashes(Const.CURRENTDIR).split("/");
+        var topDir:Array<String> = split[split.length - 1].split(".");
 
         if (topDir.length >= 2)
         {
-            var gmxFile = topDir[0] + ".project.gmx";
-            var path = Path.join([Const.CURRENTDIR, gmxFile]);
+            var gmxFile:String = topDir[0] + ".project.gmx";
+            var path   :String = Path.join([Const.CURRENTDIR, gmxFile]);
 
             if (FileSystem.exists(path))
             {
@@ -212,10 +243,15 @@ class FileHandler
         }
     }
 
-    /// Returns true for a package being installed if an xml file with the argument name is found
+    /**
+     * Returns if the xml manifest of the package provided can be found in the project directory.
+     *
+     * @param   _pkg    The package to look for.
+     * @return          True / false based on if the package was found.
+     */
     public function packageIsInstalled(_pkg:String) : Bool
     {
-        return FileSystem.exists(Path.join([Const.CURRENTDIR, "packages", _pkg+".xml"]));
+        return FileSystem.exists(Path.join([Const.CURRENTDIR, "packages", _pkg + ".xml"]));
     }
 
     /// Returns the xml manifest of the package from the packages folder in the gmx directory  
@@ -224,7 +260,12 @@ class FileHandler
         return File.getContent(Path.join([Const.CURRENTDIR, "packages", _pkg+".xml"]));
     }
 
-    /// Returns true / false if there is a zip file of the package provided
+    /**
+     * Checks if the package is already downloaded in the packages directory.
+     *
+     * @param   _package    The package to look for.
+     * @return              True / false based on if the package is downloaded.
+     */
     public function packageIsDownloaded(_package:String) : Bool
     {
         return FileSystem.exists(Const.getDataPack() + _package + ".gmp");
@@ -232,18 +273,23 @@ class FileHandler
 
     // =============== Install Functions =============== //
 
-    /// Returns a bool based on if the package provided is found in the packges.list file
+    /**
+     * Returns if the package is in the packages.list file
+     *
+     * @param   _package    The package to search for.
+     * @return              True / false based on if the package was found in the file
+     */
     public function packageAvailable(_package:String) : Bool
     {
         if (FileSystem.exists(Const.getDataConfig() + "packages.list"))
         {
-            var file = File.read(Const.getDataConfig() + "packages.list", false);
+            var file:sys.io.FileInput = File.read(Const.getDataConfig() + "packages.list", false);
             try
             {
                 while (!file.eof())
                 {
-                    var line  = file.readLine();
-                    var split = line.split(",");
+                    var line :String        = file.readLine();
+                    var split:Array<String> = line.split(",");
 
                     if (split[0] == _package)
                     {
@@ -263,7 +309,12 @@ class FileHandler
         }
     }
     
-    // Writes the downloaded zip file to the package folder
+    /**
+     * Writes the package byte stream to the disk with the name provided and the .gmp extension.
+     *
+     * @param   _byteStream     The bytes of the package.
+     * @param   _fileName       The name of the package and archive.
+     */
     public function writeToFile(_byteStream:String, _fileName:String) : Void
     {
         File.write(Const.getDataPack() + _fileName + ".gmp", true).writeString(_byteStream);
@@ -273,17 +324,17 @@ class FileHandler
     /// Loop over every item in the tmp asset directory, if its a directory copy its contents to the appropriate project directory
     public function moveAssetFiles(_pkg:String) : Void
     {
-        var assetsPath = Path.join([Const.getDataConfig(), "tmp", _pkg]);
+        var assetsPath:String = Path.join([Const.getDataConfig(), "tmp", _pkg]);
 
         // Loop through all folders in the tmp package directory
         for (item in FileSystem.readDirectory(assetsPath))
         {
             // If the current item is a directory copy it over to the project folder
-            var dir = Path.join([assetsPath, item]);
+            var dir:String = Path.join([assetsPath, item]);
 
             if (FileSystem.isDirectory(dir))
             {
-                var pathDest = Path.join([Const.CURRENTDIR, item]);
+                var pathDest:String = Path.join([Const.CURRENTDIR, item]);
 
                 if (!FileSystem.exists(pathDest))
                 {
@@ -295,7 +346,11 @@ class FileHandler
         }
     }
 
-    /// Moves the package manifest into the project "packages" folder and rename it to $packageName.xml
+    /**
+     * Moves the package manifest into the project "packages" folder and rename it to the package name.
+     *
+     * @param   _pkg    The package to copy and rename the manifest file of.
+     */
     public function moveManifestXml(_pkg:String) : Void
     {
         if (!FileSystem.exists(Path.join([Const.CURRENTDIR, "packages"])))
@@ -303,7 +358,7 @@ class FileHandler
             FileSystem.createDirectory(Path.join([Const.CURRENTDIR, "packages"]));
         }
 
-        FileSystem.rename(Path.join([Const.getDataConfig(), "tmp", _pkg, "manifest.xml"]), Path.join([Const.CURRENTDIR, "packages", _pkg+".xml"]));
+        FileSystem.rename(Path.join([Const.getDataConfig(), "tmp", _pkg, "manifest.xml"]), Path.join([Const.CURRENTDIR, "packages", _pkg + ".xml"]));
     }
 
     // =============== Remove Functions =============== //
