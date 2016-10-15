@@ -183,7 +183,7 @@ class FileHandler
         {
             println("Unable to find the package manifest.xml for " + _package);
             println("The package may be corrupt or incomplete.");
-            println("Please try redownloading the package or contacting the package maintainer");
+            println("Please try re-downloading the package or contacting the package maintainer");
             removeDirRecursive(Const.getDataConfig() + "tmp");
             Sys.exit(7);
             return "";
