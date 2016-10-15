@@ -7,8 +7,16 @@ using StringTools;
 
 class Remove
 {
-    public function new()
+    public function new(_args:Array<String>)
     {
+        if (_args.length > 0)
+        {
+            removePackages(_args);
+        }
+        else
+        {
+            printHelp();
+        }
     }
     
     /**
@@ -102,5 +110,16 @@ class Remove
         }
 
         return strBuf.toString();
+    }
+
+    /**
+     * Prints a help message for the remove command.
+     */
+    public function printHelp() : Void
+    {
+        Sys.println("You must specify at least one package to remove when using the 'remove' command.");
+        Sys.println("");
+        Sys.println("   Usage: gmr remove $package");
+        Sys.println("   Usage: gmr remove $package1 $package2");
     }
 }

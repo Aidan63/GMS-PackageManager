@@ -29,9 +29,7 @@ class Main
 
                 case "remove":
                     cliArgs.remove("remove");
-
-                    var remove = new Remove();
-                    remove.removePackages(cliArgs);
+                    var remove = new Remove(cliArgs);
                                     
                 case "add-repository":
                     cliArgs.remove("add-repository");
