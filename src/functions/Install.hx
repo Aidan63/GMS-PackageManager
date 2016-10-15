@@ -106,9 +106,12 @@ class Install
         }
     }
 
+    /**
+     * Prints a help message for the install command.
+     */
     public function printHelp() : Void
     {
-        Sys.println("You must specify a package to install when using the 'install' command.");
+        Sys.println("You must specify at least one package to install when using the 'install' command.");
         Sys.println("");
         Sys.println("   Usage: gmr install $package");
         Sys.println("   Usage: gmr install $package1 $package2");
