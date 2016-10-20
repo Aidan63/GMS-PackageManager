@@ -628,10 +628,15 @@ class FileHandler
         return list;
     }
 
+    /**
+     * Returns every package found in the packages.list file.
+     *
+     * @return      Array of strings containing all of the packages.
+     */
     public function getPackageList() : List<String>
     {
         var list = new List<String>();
-        var file = File.read(Path.join([Const.getDataConfig(), "packages.list"]));
+        var file:sys.io.FileInput = File.read(Path.join([Const.getDataConfig(), "packages.list"]));
 
         try
         {
