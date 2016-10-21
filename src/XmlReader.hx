@@ -12,8 +12,13 @@ class XmlReader
     public function new()
     {
     }
-    
-    /// Recursivly loop over the datafile elements and set the number attribute to the root number
+
+    /**
+     * Recursivly loop over all datafiles elements and set the number attribute to the root number.
+     *
+     * @param   _xml        The Xml structure to loop over.
+     * @param   _number     The number to set the attribute to.
+     */
     public function datafilesSetNumber(_xml:Xml, _number:String) : Void
     {
         for (elt in _xml.elements())
@@ -341,7 +346,6 @@ class XmlReader
         return _list;
     }
 
-    /// Removes the child nodes found in the list from the project xml
     /**
      * Removes nodes from the project Xml which are also found in the lists of resources to be removed.
      *
@@ -503,8 +507,14 @@ class XmlReader
         return data;
     }
 
-    /// Goes over a gmx xml file and gets any resource xml trees for the manifest
-    /// For each resource if there is a folder with the name of the project then that is the only xml tree that is copied over to the 
+    /**
+     * Loops over the .gmx and gets any resources from the structure for the manifest.
+     * For each resource if there is a folder with the name of the project copy that folder strucuture to the manifest.
+     * If no such folder exists copy the entire resource contents over.
+     *
+     * @param   _projectXml     The project Xml to loop over.
+     * @return                  The 'assets' Xml structure containing all the resources for the package manifest.
+     */
     public function generateAssetXml(_projectXml:String) : Xml
     {
         var pathSplit = Const.CURRENTDIR.split("/");

@@ -52,13 +52,13 @@ class Remove
             var packageConstants    :List<String> = gmxR.getPackageConstants(manifest);
 
             // Remove the package xml from the project xml and returns a string for writing to a file
-            projectGmx = gmxR.removePackageXml(projectGmx, resourcesList, datafilesParentNodes, packageConstants);
+            projectGmx:String = gmxR.removePackageXml(projectGmx, resourcesList, datafilesParentNodes, packageConstants);
 
             // Remove any package files from the project directory (optional eventually)
             fh.removePackageFiles(resourcesList, datafilesParentNodes);
 
             // Cleanup the xml by spliting it into an array, removing any white space, and checking and removing empty tags
-            projectGmx = removeEmptyXml(projectGmx);
+            projectGmx:String = removeEmptyXml(projectGmx);
             
             // Write the xml to the .project.gmx then remove the package manifest from the project 'packages' folder
             fh.writeNewXml(projectGmx);
@@ -77,15 +77,15 @@ class Remove
      */
     public function removeEmptyXml(_xml:String) : String
     {
-        var tags  = [ "<sound/>", "<sprite/>", "<background/>", "<path/>", "<font/>", "<script/>", "<object/>", "<room/>" ];
-        var lines = _xml.split("\n");
-        var list  = new List<String>();
+        var tags = [ "<sound/>", "<sprite/>", "<background/>", "<path/>", "<font/>", "<script/>", "<object/>", "<room/>" ];
+        var list = new List<String>();
+        var lines:Array<String> = _xml.split("\n");
 
         // Loop over the array and trim any whitespace before checking against the tags array
         for (line in lines)
         {
-            var currentLine = line.trim();
-            var isEmpty     = false;
+            var currentLine:String = line.trim();
+            var isEmpty = false;
 
             for (tag in tags)
             {

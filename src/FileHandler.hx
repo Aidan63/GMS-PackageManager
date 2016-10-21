@@ -325,7 +325,11 @@ class FileHandler
         println(_byteStream.length + " bytes downloaded");
     }
 
-    /// Loop over every item in the tmp asset directory, if its a directory copy its contents to the appropriate project directory
+    /**
+     * Recursivly loop over every item in the tmp directory and move it into the project folder.
+     *
+     * @param   _pkg    The package name for tmp folder sub directory.
+     */
     public function moveAssetFiles(_pkg:String) : Void
     {
         var assetsPath:String = Path.join([Const.getDataConfig(), "tmp", _pkg]);
@@ -387,6 +391,32 @@ class FileHandler
      */
     public function removePackageFiles(_resourcesList:List<String>, _datafilesParents:List<String>) : Void
     {
+        /**
+        * Searches for a resource file with the same name as the gmx file and deletes it.
+        *
+        * @param   _file       The file name (without extension) to look for any matching resource.
+        * @param   _resource   The GMS resource type sub-directory name to search in.
+        * @param   _folder     The directory to search for the physical files (based on the _resource value, eg 'image', 'audio')
+        */
+        function removeGeneralResource(_file:String, _resource:String, _folder:String) : Void
+        {
+            var path   :String        = Path.join([Const.CURRENTDIR, _resource, _folder]);
+            var content:Array<String> = FileSystem.readDirectory(path);
+
+            // Iterate over every item in the directory
+            for (file in content)
+            {
+                if (!FileSystem.isDirectory(Path.join([path, file])))
+                {
+                    var currentFile = Path.withoutExtension(file);
+                    if (currentFile == _file)
+                    {
+                        FileSystem.deleteFile(Path.join([path, file]));
+                    }
+                }
+            }
+        }
+
         for (item in _resourcesList)
         {
             var pwd      = Path.removeTrailingSlashes(Const.CURRENTDIR).split("/");
@@ -471,26 +501,6 @@ class FileHandler
             {
                 removeDirRecursive(dirPath);
                 FileSystem.deleteDirectory(dirPath);
-            }
-        }
-    }
-
-    /// Looks for a resource file with the same name as the gmx resource and deletes it
-    public function removeGeneralResource(_file:String, _resource:String, _folder:String) : Void
-    {
-        var path    = Path.join([Const.CURRENTDIR, _resource, _folder]);
-        var content = FileSystem.readDirectory(path);
-
-        // Iterate over every item in the directory
-        for (file in content)
-        {
-            if (!FileSystem.isDirectory(Path.join([path, file])))
-            {
-                var currentFile = Path.withoutExtension(file);
-                if (currentFile == _file)
-                {
-                    FileSystem.deleteFile(Path.join([path, file]));
-                }
             }
         }
     }
@@ -751,6 +761,13 @@ class FileHandler
         removeDirRecursive(Path.join([Const.getDataConfig() + "tmp"]));
     }
 
+    /**
+     * Moves physical resource files (.gmx files and the .png, .ogg, etc) from the project directory to the tmp directory. 
+     *
+     * @param   _res        The resource to move into the tmp package directory.
+     * @param   _projDir    The base project directory to move resources from.
+     * @param   _tmpPkgDir  The folder in the tmp directory to store the moved resources.
+     */
     public function moveResourceToPkg(_res:String, _projDir:String, _tmpPkgDir:String) : Void
     {
         var split = _res.split("\\");
@@ -763,7 +780,7 @@ class FileHandler
         {
             FileSystem.createDirectory(resDir);
         }
-
+        
         switch (resType)
         {
             case "extensions", "scripts", "shaders":
