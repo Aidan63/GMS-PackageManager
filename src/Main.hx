@@ -2,7 +2,7 @@ package;
 
 import Sys.args;
 import src.Const;
-import src.CLIParser;
+import src.cliParser.CLIParser;
 
 class Main
 {
