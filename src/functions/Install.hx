@@ -7,7 +7,14 @@ import src.XmlReader;
 import src.Const;
 
 class Install
-{   
+{
+    private var xmlFolder       : String = "";
+    private var projectPath     : String = "";
+    private var downloadOnly    : Bool   = false;
+    private var localInstall    : Bool   = false;
+    private var fromMarketplace : Bool   = false;
+    private var fromGmlScripts  : Bool   = false;
+    
     public function new(_args:Array<String>)
     {
         // If there is an entry in the array then attempt to install a package of that name

@@ -18,6 +18,7 @@ class CLIParser
         {
             var cmd : String              = popTopItem();
             var args: Map<String, String> = getCliOptions();
+            trace(arguments);
             switch (cmd.toUpperCase())
             {
                 case "INSTALL":
@@ -84,6 +85,12 @@ class CLIParser
         {
             optionsMap.set(item, arguments[i]);
             i ++;
+        }
+
+        // Removes all of the now unneeded items from the option arguments.
+        for (item in optionsList)
+        {
+            popTopItem();
         }
 
         return optionsMap;
