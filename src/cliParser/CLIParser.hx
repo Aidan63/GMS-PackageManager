@@ -36,6 +36,7 @@ class CLIParser
                 case "UPGRADE":
 
                 case "ADD-REPOSITORY":
+                    var addRepo = new AddRepo(arguments);
 
                 case "REMOVE-REPOSITORY":
 
