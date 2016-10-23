@@ -28,6 +28,7 @@ class CLIParser
                     var install = new Install(options, arguments);
 
                 case "REMOVE":
+                    var remvove = new Remove(options, arguments);
 
                 case "UPDATE":
 

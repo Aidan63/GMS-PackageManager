@@ -7,7 +7,7 @@ using StringTools;
 
 class Remove
 {
-    public function new(_args:Array<String>)
+    public function new(_options:Map<String, String>, _args:Array<String>)
     {
         if (_args.length > 0)
         {
@@ -52,13 +52,13 @@ class Remove
             var packageConstants    :List<String> = gmxR.getPackageConstants(manifest);
 
             // Remove the package xml from the project xml and returns a string for writing to a file
-            projectGmx:String = gmxR.removePackageXml(projectGmx, resourcesList, datafilesParentNodes, packageConstants);
+            projectGmx = gmxR.removePackageXml(projectGmx, resourcesList, datafilesParentNodes, packageConstants);
 
             // Remove any package files from the project directory (optional eventually)
             fh.removePackageFiles(resourcesList, datafilesParentNodes);
 
             // Cleanup the xml by spliting it into an array, removing any white space, and checking and removing empty tags
-            projectGmx:String = removeEmptyXml(projectGmx);
+            projectGmx = removeEmptyXml(projectGmx);
             
             // Write the xml to the .project.gmx then remove the package manifest from the project 'packages' folder
             fh.writeNewXml(projectGmx);
