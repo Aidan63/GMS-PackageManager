@@ -44,6 +44,7 @@ class CLIParser
                     remRepo.removeRepository(arguments[0]);
 
                 case "LIST":
+                    var list = new ListPkgs(options, arguments);
 
                 case "CREATE":
 

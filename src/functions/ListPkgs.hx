@@ -4,7 +4,7 @@ import src.FileHandler;
 
 class ListPkgs
 {
-    public function new()
+    public function new(_options:Map<String, String>, _args:Array<String>)
     {
         listAll();
     }
