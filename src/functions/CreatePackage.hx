@@ -17,7 +17,7 @@ class CreatePackage
     private var pkgDevelopers  :Array<String> = new Array<String>();
     private var pkgDependancies:Array<String> = new Array<String>();
 
-    public function new()
+    public function new(_options:Map<String, String>, _args:Array<String>)
     {
         getPkgDetails();
         createXmlManifest();

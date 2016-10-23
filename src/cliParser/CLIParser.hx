@@ -47,6 +47,7 @@ class CLIParser
                     var list = new ListPkgs(options, arguments);
 
                 case "CREATE":
+                    var create = new CreatePackage(options, arguments);
 
                 case "VERSION":
                     printVersion();
