@@ -31,6 +31,7 @@ class CLIParser
                     var remvove = new Remove(options, arguments);
 
                 case "UPDATE":
+                    var update = new Update();
 
                 case "UPGRADE":
 

@@ -8,12 +8,13 @@ class Update
 {
     public function new()
     {
+        updatePackages();
     }
 
     /**
      * For each url in the repositories.list file attempt to download the manifest and for each package inside add it to the packages.list file
      */
-    public function updatePackages() : Void
+    private function updatePackages() : Void
     {
         var fh    = new FileHandler();
         var webDl = new WebDownloader();
