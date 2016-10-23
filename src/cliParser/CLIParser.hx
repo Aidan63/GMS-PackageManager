@@ -2,6 +2,7 @@ package src.cliParser;
 
 import haxe.macro.Expr;
 import haxe.macro.Context;
+import src.functions.*;
 
 class CLIParser
 {
@@ -12,16 +13,19 @@ class CLIParser
         arguments = _args;
     }
 
+    /**
+     * Gets the cli options
+     */
     public function parseInput() : Void
     {
         if (arguments.length > 0)
         {
-            var cmd : String              = popTopItem();
-            var args: Map<String, String> = getCliOptions();
-            trace(arguments);
+            var cmd    : String              = popTopItem();
+            var options: Map<String, String> = getCliOptions();
             switch (cmd.toUpperCase())
             {
                 case "INSTALL":
+                    var install = new Install(options, arguments);
 
                 case "REMOVE":
 
@@ -41,7 +45,7 @@ class CLIParser
                     printVersion();
 
                 default:
-                    trace("UNKNOWN COMMAND", cmd);
+                    trace("Unknown command " + cmd);
             }
         }
         else
