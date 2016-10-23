@@ -3,6 +3,7 @@ package src.cliParser;
 import haxe.macro.Expr;
 import haxe.macro.Context;
 import src.functions.*;
+import src.FileHandler;
 
 class CLIParser
 {
@@ -39,6 +40,8 @@ class CLIParser
                     var addRepo = new AddRepo(arguments);
 
                 case "REMOVE-REPOSITORY":
+                    var remRepo = new FileHandler();
+                    remRepo.removeRepository(arguments[0]);
 
                 case "LIST":
 
