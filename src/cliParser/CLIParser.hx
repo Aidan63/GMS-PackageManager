@@ -58,7 +58,7 @@ class CLIParser
         }
         else
         {
-            printHelp();
+            printNoArgs();
         }
     }
 
@@ -124,7 +124,7 @@ class CLIParser
     /**
      * Prints basic help for the program.
      */
-    private function printHelp()
+    private function printNoArgs()
     {
         Sys.println("GameMaker:Studio Package Manager");
         Sys.println("type 'gmr help' for a list of commands and their usage");
