@@ -52,6 +52,9 @@ class CLIParser
                 case "VERSION":
                     printVersion();
 
+                case "HELP":
+                    var help = new Help(arguments);
+
                 default:
                     trace("Unknown command " + cmd);
             }
