@@ -4,8 +4,8 @@ package utils;
  * Simple log class to print out coloured text on platforms which support it.
  *
  * @author  Aidan Lee <aidan.lee63@gmail.com>
- * @version 0.0.2
- * @since   0.0.2
+ * @version 1.0.0
+ * @since   0.2.0
  */
 class Log
 {
