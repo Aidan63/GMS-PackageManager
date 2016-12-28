@@ -1,16 +1,16 @@
--cp src
--cp test
+#-cp src
+#-cp test
 
--lib xmlTools
--lib utest;
+#-lib xmlTools
+#-lib utest;
 
 # Build and run the tests
--main TestAll
--neko bin/test.n
--cmd neko bin/test.n
+#-main TestAll
+#-neko bin/test.n
+#-cmd neko bin/test.n
 
 # Build the actual project
---next
+#--next
 
 -cp src
 -lib xmlTools

@@ -1,3 +1,4 @@
+/*
 import utest.Runner;
 import utest.ui.Report;
 import packagemanager.*;
@@ -12,3 +13,4 @@ class TestAll
         runner.run();
     }
 }
+*/
