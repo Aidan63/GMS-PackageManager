@@ -1,86 +1,40 @@
-package src.cliParser;
+package utils;
 
-import Sys.println;
+import utils.Log;
 
+/**
+ * Contains functions for printing help for the program commands.
+ *
+ * @author  Aidan Lee <aidan.lee63@gmail.com>
+ * @version 1.0.0
+ * @since   0.2.0
+ */
 class Help
 {
-    public function new(_args:Array<String>)
+    /**
+     * Prints help for the install command.
+     */
+    public static function printHelpInstall()
     {
-        if (_args.length > 0)
-        {
-            printCommandHelp(_args[0]);
-        }
-        else
-        {
-            printShortHelp();
-        }
-    }
-
-    private function printShortHelp()
-    {
-        println("GameMaker:Studio Package Manager");
-        println("for more in depth information on a command type 'gmr help $command'.");
-        println("");
-        println("Commands:");
-        println("");
-        println("install : Installs the specified package(s) to a project.");
-        println("remove  : Removes the specified packages(s) from a project.");
-        println("update  : Fetches the latest information about packages from all repositories.");
-        println("upgrade : Updates all packages install in the project to the latest version.");
-        println("list    : Lists all available packages and the repository they come from.");
-        println("create  : Creates a package from the project folder");
-        println("add-repository    : Adds the repository so it's packages can be downloaded.");
-        println("remove-repository : Removes the repository from the config file.");
-    }
-
-    private function printCommandHelp(_cmd:String)
-    {
-        switch (_cmd.toUpperCase())
-        {
-            case "INSTALL":
-                printHelpInstall();
-
-            case "REMOVE":
-
-            case "UPDATE":
-
-            case "UPGRADE":
-
-            case "LIST":
-
-            case "ADD-REPOSITORY":
-
-            case "REMOVE-REPOSITORY":
-
-            case "CREATE":
-
-            case "HELP":
-        }
-    }
-
-    // ---------------------------------- //
-
-    private function printHelpInstall()
-    {
-        println("Install");
-        println("Adds the specified package(s) to a GMS project folder.");
-        println("With no options supplied the command must be ran within the project folder.");
-        println("");
-        println("Examples:");
-        println("");
-        println("   gmr install $package");
-        println("   gmr install $package1 $package2");
-        println("   gmr install --path /home/aidan/GameMakerStudio/MyProject.gmx $package");
-        println("");
-        println("Options:");
-        println("");
-        println("--path     -p :");
-        println("   Specifies a path to a project for the package to be install to.");
-        println("--folder   -f :");
-        println("   Specifies a folder within the project to try and install the package to.");
-        println("--download -d :");
-        println("   Downloads the package to the package storage and does not install it.");
-        println("--local    -l :");
-        println("   Installs a package from the speicified path.");
+        Log.info ("Install");
+        Log.print("Adds a specified package(s) to a GMS project folder.");
+        Log.print("Visit $URL for full documentation on this command.");
+        Log.print("");
+        Log.info ("Examples");
+        Log.print("");
+        Log.print("    gmpkg install $package");
+        Log.print("    gmpkg install $package1 $package2");
+        Log.print("    gmpkg install --path /home/aidan/GMSProject/MyProject.gmx $package");
+        Log.print("");
+        Log.info ("Options");
+        Log.print("");
+        Log.info ("-p --project");
+        Log.print("    Specifies the project directory to install the package(s) to.");
+        Log.info ("-d --dl-only");
+        Log.print("    Only downloads the package, does not install it.");
+        Log.info ("-l --local");
+        Log.print("    Install the package from the specified local file.");
+        Log.info ("-g --git");
+        Log.print("    Install a package from the git repository provided.");
     }
 }
