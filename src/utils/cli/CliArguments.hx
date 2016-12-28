@@ -45,9 +45,62 @@ class CliArguments
     private static var commandArgs:Map<String, Array<CliArg>> = [
         "install" => [
             new CliArg("local"  , "l", false),
-            new CliArg("git"    , "g", false),
+            new CliArg("git"    , "g", true ),
             new CliArg("path"   , "p", true ),
             new CliArg("script" , "s", false)
         ]
     ];
+
+    public function new()
+    {
+        //
+    }
+
+    public function optionExists(_cmd:String, _opt:String):Bool
+    {
+        if (commandArgs.exists(_cmd))
+        {
+            for (arg in commandArgs.get(_cmd))
+            {
+                if (arg.fullName == _opt || arg.shortName == _opt)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public function optionExpectsValue(_cmd:String, _opt:String):Bool
+    {
+        if (optionExists(_cmd, _opt))
+        {
+            for (arg in commandArgs.get(_cmd))
+            {
+                if (arg.fullName == _opt || arg.shortName == _opt)
+                {
+                    return arg.expected;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public function getOptionFullName(_cmd:String, _opt:String):String
+    {
+        if (optionExists(_cmd, _opt))
+        {
+            for (arg in commandArgs.get(_cmd))
+            {
+                if (arg.fullName == _opt || arg.shortName == _opt)
+                {
+                    return arg.fullName;
+                }
+            }
+        }
+
+        return null;
+    }
 }
