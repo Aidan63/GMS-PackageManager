@@ -1,16 +1,13 @@
 package;
 
-import Sys.args;
-import src.Const;
-import src.cliParser.CLIParser;
+import utils.cli.CliParser;
+import utils.Log;
 
 class Main
 {
     public static function main()
     {
-        Const.setupStorage();
-
-        var cli = new CLIParser(args());
-        cli.parseInput();
+        var parser = new CliParser(Sys.args());
+        parser.parse();
     }
 }

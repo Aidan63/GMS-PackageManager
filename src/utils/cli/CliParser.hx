@@ -17,9 +17,30 @@ class CliParser
      */
     private var arguments:Array<String>;
 
+    /**
+     * Holds mapping of the program commands to a function to call for each one.
+     */
+    private var argFunctionMapping:Map<String, Void->Void>;
+
+    /**
+     * Sets arguments to the array passed and creates the map of commands and function.
+     */
     public function new(_args:Array<String>)
     {
         arguments = _args;
+
+        argFunctionMapping = [
+            "ADD-REPO"    => processAddRepo,
+            "REMOVE-REPO" => processRemoveRepo,
+            "HELP"        => processHelp,
+            "LIST"        => processList,
+            "UPDATE"      => processUpdate,
+
+            "CREATE-PKG"  => processCreatePkg,
+            "INSTALL"     => processInstall,
+            "REMOVE"      => processRemove,
+            "UPGRADE"     => processUpgrade
+        ];
     }
 
     /**
@@ -29,30 +50,17 @@ class CliParser
     {
         if (arguments.length > 0)
         {
-            var cmd:String = arguments[0].toUpperCase();
-            switch (cmd)
-            {
-                // Shared Commands
-                case "ADDREPO":
-                    Log.debug("add repo");
-                case "REMOVEREPO":
-                    Log.debug("remove repo");
-                case "HELP":
-                    Log.debug("help");
-                case "LISTPKGS":
-                    Log.debug("list pkgs");
-                case "UPDATE":
-                    Log.debug("update");
+            var cmd:String = arguments.shift().toUpperCase();
 
-                // Backend Specific
-                case "CREATEPKG":
-                    Log.debug("create pkg");
-                case "INSTALL":
-                    Log.debug("install");
-                case "REMOVE":
-                    Log.debug("remove");
-                case "UPGRADE":
-                    Log.debug("upgrade");
+            if (argFunctionMapping.exists(cmd))
+            {
+                var func = argFunctionMapping.get(cmd);
+                func();
+            }
+            else
+            {
+                Log.error('Unknown command $cmd');
+                Log.info ("Run 'gmpkg help' for a list of all commands and usage");
             }
         }
         else
@@ -61,4 +69,19 @@ class CliParser
             Log.info ("Run 'gmpkg help' for a list of all commands and usage");
         }
     }
+
+    private function processInstall()
+    {
+        Log.debug("Works");
+    }
+
+    private function processAddRepo() {}
+    private function processCreatePkg() {}
+    private function processHelp() {}
+    
+    private function processList() {}
+    private function processRemove() {}
+    private function processRemoveRepo() {}
+    private function processUpdate() {}
+    private function processUpgrade() {}
 }
