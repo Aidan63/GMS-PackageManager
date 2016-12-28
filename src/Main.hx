@@ -1,7 +1,7 @@
 package;
 
 import utils.cli.CliParser;
-import utils.Log;
+import utils.Help;
 
 class Main
 {
