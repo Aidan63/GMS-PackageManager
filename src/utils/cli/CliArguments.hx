@@ -47,7 +47,7 @@ class CliArguments
             new CliArg("local"  , "l", false),
             new CliArg("git"    , "g", true ),
             new CliArg("path"   , "p", true ),
-            new CliArg("script" , "s", false)
+            new CliArg("dl-only", "d", false)
         ]
     ];
 

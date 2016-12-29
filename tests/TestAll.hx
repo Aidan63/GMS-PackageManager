@@ -1,6 +1,6 @@
 import utest.Runner;
 import utest.ui.Report;
-import tests.gmpkg.TestCliArguments;
+import tests.gmpkg.*;
 
 class TestAll
 {
@@ -8,6 +8,7 @@ class TestAll
     {
         var runner = new Runner();
         runner.addCase(new TestCliArguments());
+        runner.addCase(new TestCliParser());
         Report.create(runner);
         runner.run();
     }
