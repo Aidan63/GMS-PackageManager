@@ -37,6 +37,9 @@ class App
         ];
     }
 
+    /**
+     * Starts the program, gets the initial command and calls the appropriate function.
+     */
     public function run()
     {
         if (arguments.length > 0)
@@ -61,33 +64,20 @@ class App
 
     private function processInstall()
     {
-        var options:Map<String, String> = CliParser.getOptionsMap("install", arguments);
-        var optLocal:Bool   = false;
-        var optDl   :Bool   = false;
-        var optGit  :String = "";
-        var optPath:String  = "";
-
-        if (options.exists("local"))
-        {
-            optLocal = true;
-        }
-        if (options.exists("dl-only"))
-        {
-            optDl = true;
-        }
-        if (options.exists("git"))
-        {
-            optGit = options.get("git");
-        }
-        if (options.exists("path"))
-        {
-            optPath = options.get("path");
-        }
+        var options :Map<String, String> = CliParser.getOptionsMap("install", arguments);
+        var optLocal:Bool = options.exists("local"  ) ? true : false;
+        var optDl   :Bool = options.exists("dl-only") ? true : false;
+        var optGit  :String = options.exists("git"  ) ? options.get("git" ) : "";
+        var optPath :String = options.exists("path" ) ? options.get("path") : "";
 
         Log.debug(options.toString());
     }
 
-    private function processAddRepo() {}
+    private function processAddRepo()
+    {
+        Log.debug("add-repo");
+    }
+
     private function processCreatePkg() {}
     private function processHelp() {}
     private function processList() {}
