@@ -27,6 +27,13 @@ typedef RepositoryJson = {
     var packages:Array<PackageJson>;
 }
 
+/**
+ * Contains functions for adding, removing, and updating repositories.
+ *
+ * @author  Aidan Lee <aidan.lee63@gmail.com>
+ * @version 1.0.0
+ * @since   0.2.0
+ */
 class RepoManager
 {
     public static function addRepository(_urls:Array<String>)

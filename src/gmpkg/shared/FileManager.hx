@@ -2,6 +2,13 @@ package gmpkg.shared;
 
 import haxe.io.Path;
 
+/**
+ * Contains functions for dealing with the file system.
+ *
+ * @author  Aidan Lee <aidan.lee63@gmail.com>
+ * @version 1.0.0
+ * @since   0.2.0
+ */
 class FileManager
 {
     /**
