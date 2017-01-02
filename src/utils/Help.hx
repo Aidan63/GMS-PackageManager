@@ -38,6 +38,11 @@ class Help
         Log.print("    Install a package from the git repository provided.");
     }
 
+    public static function printHelpAddRepo()
+    {
+        Log.debug("TODO - Put help message for no add-repo args");
+    }
+
     /**
      * Prints text for an unknown command.
      *
