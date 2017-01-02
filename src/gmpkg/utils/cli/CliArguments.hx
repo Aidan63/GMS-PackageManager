@@ -1,4 +1,4 @@
-package utils.cli;
+package gmpkg.utils.cli;
 
 /**
  * Stores some basic info about each argument.

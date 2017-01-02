@@ -1,4 +1,4 @@
-package utils;
+package gmpkg.utils;
 
 /**
  * Simple log class to print out coloured text on platforms which support it.

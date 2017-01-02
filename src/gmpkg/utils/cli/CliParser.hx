@@ -1,6 +1,6 @@
-package utils.cli;
+package gmpkg.utils.cli;
 
-import utils.cli.CliArguments;
+import gmpkg.utils.cli.CliArguments;
 
 /**
  * Parses the cli arguments and calls the appropriate function with options values passed to it.

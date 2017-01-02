@@ -1,7 +1,7 @@
 package tests.gmpkg;
 
 import utest.Assert;
-import utils.cli.CliArguments;
+import gmpkg.utils.cli.CliArguments;
 
 class TestCliArguments
 {

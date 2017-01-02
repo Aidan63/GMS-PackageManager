@@ -2,7 +2,7 @@ package tests.gmpkg;
 
 import utest.Assert;
 import haxe.io.Path;
-import shared.FileManager;
+import gmpkg.shared.FileManager;
 
 class TestFileManager
 {

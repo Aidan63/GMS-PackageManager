@@ -1,5 +1,7 @@
 package;
 
+import gmpkg.App;
+
 class Main
 {
     public static function main()

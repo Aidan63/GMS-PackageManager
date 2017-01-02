@@ -1,9 +1,9 @@
-package;
+package gmpkg;
 
-import utils.Help;
-import utils.Log;
-import utils.cli.CliParser;
-import shared.RepoManager;
+import gmpkg.utils.Help;
+import gmpkg.utils.Log;
+import gmpkg.utils.cli.CliParser;
+import gmpkg.shared.RepoManager;
 
 class App
 {

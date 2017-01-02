@@ -1,6 +1,6 @@
-package utils;
+package gmpkg.utils;
 
-import utils.Log;
+import gmpkg.utils.Log;
 
 /**
  * Contains functions for printing help for the program commands.

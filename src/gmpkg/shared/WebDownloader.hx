@@ -1,4 +1,4 @@
-package shared;
+package gmpkg.shared;
 
 import haxe.Http;
 

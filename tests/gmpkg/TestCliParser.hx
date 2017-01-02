@@ -1,7 +1,7 @@
 package tests.gmpkg;
 
 import utest.Assert;
-import utils.cli.CliParser;
+import gmpkg.utils.cli.CliParser;
 
 class TestCliParser
 {

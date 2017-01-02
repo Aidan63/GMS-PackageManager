@@ -1,7 +1,7 @@
-package shared;
+package gmpkg.shared;
 
-import utils.Log;
-import shared.WebDownloader;
+import gmpkg.utils.Log;
+import gmpkg.shared.WebDownloader;
 
 typedef OwnerJson = {
     var name   :String;
