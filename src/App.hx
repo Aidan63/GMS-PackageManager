@@ -3,6 +3,7 @@ package;
 import utils.Help;
 import utils.Log;
 import utils.cli.CliParser;
+import shared.RepoManager;
 
 class App
 {
@@ -75,7 +76,14 @@ class App
 
     private function processAddRepo()
     {
-        Log.debug("add-repo");
+        if (arguments.length > 0)
+        {
+            RepoManager.addRepository(arguments);
+        }
+        else
+        {
+            Help.printHelpAddRepo();
+        }
     }
 
     private function processCreatePkg() {}
